@@ -25,7 +25,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # SECURITY WARNING: keep the secret key used in production secret!
 DEBUG = False
 SECRET_KEY = 'django-insecure-70sfwr7f4#%)t^z7o(x=2*+r+00zmzck3k*ub(z!o=t3zh$lao'
-ALLOWED_HOSTS = ['localhost', '127.0.0.1:8000', 'https://guesthouse.up.railway.app/', 'guesthouse.up.railway.app']
+ALLOWED_HOSTS = ['localhost', '127.0.0.1:8000', 'https://guesthouse.up.railway.app', 'guesthouse.up.railway.app']
 
 
 # Application definition
@@ -137,3 +137,6 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
+
+CSRF_COOKIE_SECURE = True  # Set to False if developing locally without HTTPS
+CSRF_COOKIE_HTTPONLY = True
