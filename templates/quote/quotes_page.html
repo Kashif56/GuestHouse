@@ -1,0 +1,301 @@
+{% extends 'base.html' %}
+
+{% block title %}
+  <title>PTC GH - Quotes</title>
+  <style>
+    /* Reset default styles */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Montserrat', sans-serif !important;
+    }
+    .success-message {
+    color: #155724;
+    background-color: #d4edda;
+    border-color: #c3e6cb;
+    padding: 10px;
+    margin-bottom: 10px;
+}
+
+    /* Define styles for error messages */
+    .error-message {
+        color: #721c24;
+        background-color: #f8d7da;
+        border-color: #f5c6cb;
+        padding: 10px;
+        margin-bottom: 10px;
+    }
+
+    .navbar-brand a{
+      text-decoration: none;
+      color: white;
+      font-weight: bold;
+    }
+
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f5f5f5;
+    }
+
+    header {
+      background-color: #051147;
+      color: #fff;
+      padding: 10px 20px;
+    }
+
+    nav {
+      margin:10px 20px ;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .navbar-brand {
+      font-size: 24px;
+    }
+
+    .navbar-links {
+      list-style-type: none;
+      display: flex;
+    }
+
+    .navbar-links li {
+      margin-right: 20px;
+    }
+
+    .navbar-links li a {
+      color: #fff;
+      text-decoration: none;
+      font-size: 16px;
+    }
+
+    /* Hamburger menu styles */
+    .hamburger-menu {
+      display: none;
+      flex-direction: column;
+      cursor: pointer;
+    }
+
+    .hamburger-menu div {
+      width: 25px;
+      height: 3px;
+      background-color: #fff;
+      margin: 3px 0;
+    }
+
+    .main-content {
+      padding: 20px 40px;
+    }
+
+    .table-container {
+      width: 100%;
+      overflow-x: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+    }
+
+    table th, table td {
+      padding: 10px;
+      border: 1px solid #ddd;
+      text-align: left;
+    }
+
+    table th {
+      background-color: #051147;
+      color: #fff;
+    }
+
+    table tbody tr:nth-child(even) {
+      background-color: #f2f2f2;
+    }
+
+    table tbody tr:hover {
+      background-color: #ddd;
+    }
+
+    .search-container {
+      margin-bottom: 20px;
+    }
+
+    .search-container input[type="text"] {
+      width: 50%;
+      padding: 10px;
+      font-size: 16px;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+      margin-bottom: 10px;
+      margin-top: 20px;
+    }
+    a{
+      color: #1b3bc8;
+      text-decoration: none;
+    }
+
+    /* Responsive styles */
+    @media screen and (max-width: 768px) {
+      .navbar-links {
+        display: none;
+      }
+
+      .hamburger-menu {
+        display: flex;
+      }
+      body{
+        font-size: 14px;
+        padding: 0px !important;
+        margin: 0px !important;
+      }
+
+      nav{
+        margin: 0 0px;
+      }
+      .main-content {
+        padding: 10px;
+        font-size: 12px;
+    }
+
+      .navbar-links.active {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        background-color: #051147;
+        position: absolute;
+        top: 60px;
+        left: 0;
+        width: 100%;
+        padding-top: 20px;
+        z-index: 1;
+      }
+
+      .navbar-links.active li {
+        margin: 10px 0;
+      }
+
+      .navbar-links.active li a {
+        font-size: 16px;
+      }
+    }
+
+  </style>
+  {% endblock %}
+
+  {% block nav %}
+  <div id="navigation"><div class="navigation">
+    <a href="{% url 'index' %}">Home</a>  /  
+    <span><a href="">List</a></span> /
+    <span><a class="active-nav" href="{% url 'quote_list' %}">Quotations</a></span>
+  {% endblock %}
+
+
+  {% block content %}
+
+    <section class="main-content">
+      {% if messages %}
+        <ul>
+            {% for message in messages %}
+                <li class="{% if message.tags == 'success' %}success-message{% elif message.tags == 'error' %}error-message{% endif %}">
+                    {{ message }}
+                </li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+      <div class="table-container">
+        <h2>Quotes</h2>
+        <div class="search-container">
+          <form class="search-form" method="get">
+            <input {% if search_query %} value="{{ search_query }}" {% endif %} type="text" name='search_query' placeholder="Search...">
+            <select name="method" id="method">
+
+              <option value="" >Search By</option>
+              <option {% if method == 'by_quote' %} selected {% endif %} value="by_quote">By Quote Number</option>
+              <option {% if method == 'by_dept' %} selected {% endif %} value="by_dept">By Department</option>
+              <option {% if method == 'by_desc' %} selected {% endif %} value="by_desc">By Description</option>
+            </select>
+            <button class="search">Search</button>
+            <a class="add_btn" href="{% url 'quote_form' %}">Add Quote</a>
+          </form>
+        </div>
+        {% if request.GET %}
+        <table>
+          <thead>
+          
+            <tr>
+              <th>Quote NO</th>
+              <th>Description</th>
+              <th>Department</th>
+              <th>Quote Date</th>
+              <th>Amount</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% if results %}
+            {% for item in results %}
+            <tr>
+              <td><a href="{% url 'quote_detail_page' item.quote_number %}">{{ item.quote_number }}</a></td>
+              <td>{{ item.description }}</td>
+              <td>{{ item.department }}</td>
+              <td>{{ item.quote_date }}</td>
+              <td>Rs.{{ item.total_amount }}</td>
+              <td><a style="color: green;" href="{% url 'edit_quote' item.quote_number  %}">Edit</a>
+                  <a style="color: red;margin-left: 20px;" href="{% url 'delete_quote' item.quote_number %}">Delete</a>
+              </td>
+            </tr>
+            {% endfor %} {% else %}
+            <tr> 
+              <td style="text-align: center; color: rgb(255, 0, 0);" colspan="6">
+                <strong>No Quotation Found</strong>
+              </td>
+            </tr>
+            {% endif %}
+            <!-- Add more rows here -->
+          </tbody>
+        </table>
+        {% else %}
+        <!--  -->
+        
+        <table>
+          <thead>
+          
+            <tr>
+              <th>Quote NO</th>
+              <th>Description</th>
+              <th>Department</th>
+              <th>Quote Date</th>
+              <th>Amount</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% if items %}
+            {% for item in items %}
+            <tr>
+              <td><a href="{% url 'quote_detail_page' item.quote_number %}">{{ item.quote_number }}</a></td>
+              <td>{{ item.description }}</td>
+              <td>{{ item.department }}</td>
+              <td>{{ item.quote_date }}</td>
+              <td>Rs.{{ item.total_amount }}</td>
+              <td><a style="color: green;" href="{% url 'edit_quote' item.quote_number  %}">Edit</a>
+                  <a style="color: red;margin-left: 20px;" href="{% url 'delete_quote' item.quote_number %}">Delete</a>
+              </td>
+            </tr>
+            {% endfor %} {% else %}
+            <tr> 
+              <td style="text-align: center; color: rgb(255, 0, 0);" colspan="6">
+                <strong>No Quotation</strong>
+              </td>
+            </tr>
+            {% endif %}
+            <!-- Add more rows here -->
+          </tbody>
+        </table>
+        {% endif %}
+      </div>
+    </section>
+
+  {% endblock %}

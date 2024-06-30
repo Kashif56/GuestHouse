@@ -1,0 +1,280 @@
+{% extends 'base.html' %}
+
+
+  {% block title %}
+  {% if item %}
+  <title>PTC GH - Add Delivery Challan</title> {% else %}
+  <title>PTC GH - Add Delivery Challan</title> {% endif %}
+  <style>
+    /* Reset default styles */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Montserrat', sans-serif !important;
+    }
+    .success-message {
+    color: #155724;
+    background-color: #d4edda;
+    border-color: #c3e6cb;
+    padding: 10px;
+    margin-bottom: 10px;
+}
+.navbar-brand a{
+      text-decoration: none;
+      color: white;
+      font-weight: bold;
+    }
+
+    /* Define styles for error messages */
+    .error-message {
+        color: #721c24;
+        background-color: #f8d7da;
+        border-color: #f5c6cb;
+        padding: 10px;
+        margin-bottom: 10px;
+    }
+
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f5f5f5;
+    }
+
+    header {
+      background-color: #051147;
+      color: #fff;
+      padding: 10px 20px;
+    }
+
+    nav {
+      margin:10px 20px ;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .navbar-brand {
+      font-size: 24px;
+    }
+
+    .navbar-links {
+      list-style-type: none;
+      display: flex;
+    }
+
+    .navbar-links li {
+      margin-right: 20px;
+    }
+
+    .navbar-links li a {
+      color: #fff;
+      text-decoration: none;
+      font-size: 16px;
+    }
+
+    /* Hamburger menu styles */
+    .hamburger-menu {
+      display: none;
+      flex-direction: column;
+      cursor: pointer;
+    }
+
+    .hamburger-menu div {
+      width: 25px;
+      height: 3px;
+      background-color: #fff;
+      margin: 3px 0;
+    }
+
+    .main-content {
+      padding: 20px;
+    }
+
+    .form-container {
+      width: 50%;
+      margin: 20px auto;
+    }
+
+    form {
+      background-color: #fff;
+      padding: 20px;
+      border-radius: 5px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+
+    form label {
+      display: block;
+      margin-bottom: 10px;
+      font-weight: bold;
+    }
+
+    form input[type="text"],
+    form input[type="date"],
+    form input[type="number"],
+    form input[type="file"],
+    form select {
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 20px;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+      font-size: 16px;
+    }
+
+    form input[type="checkbox"] {
+      margin-right: 10px;
+    }
+
+    form button {
+        width: 100%;
+      background-color: #051147;
+      color: #fff;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 16px;
+    }
+
+    /* Responsive styles */
+    @media screen and (max-width: 768px) {
+      .navbar-links {
+        display: none;
+      }
+
+      .hamburger-menu {
+        display: flex;
+      }
+
+      .navbar-links.active {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        background-color: #051147;
+        position: absolute;
+        top: 60px;
+        left: 0;
+        width: 100%;
+        padding-top: 20px;
+        z-index: 1;
+      }
+
+      .navbar-links.active li {
+        margin: 10px 0;
+      }
+
+      .navbar-links.active li a {
+        font-size: 18px;
+      }
+
+      .form-container {
+        width: 100%;
+      }
+    }
+
+  </style>
+  {% endblock %}
+  
+{% block nav %}
+<div id="navigation"><div class="navigation">
+  <a href="{% url 'index' %}">Home</a>  /  
+  <span><a href="">Form</a></span> /
+  <span><a class="active-nav" href="{% url 'dc_form' %}">Add DC</a></span>
+{% endblock %}
+
+{% block content %}
+  
+    {% if messages %}
+        <ul>
+            {% for message in messages %}
+                <li class="{% if message.tags == 'success' %}success-message{% elif message.tags == 'error' %}error-message{% endif %}">
+                    {{ message }}
+                </li>
+            {% endfor %} 
+        </ul>
+    {% endif %}
+    <section class="main-content">
+      
+      <div class="form-container">
+
+        {% if item %}
+        <h2>Edit Delivery Challan</h2>
+        <form method="post" enctype="multipart/form-data">
+          {% csrf_token %}
+          <label for="quoteNumber">DC Number</label>
+          <input required value="{{ item.dc_number }}" type="number" id="quoteNumber" name="dc_number">
+          
+          <label for="image">Image</label>
+          <img height="100" src="{{ item.image.url }}" alt="Image">
+          <input accept="image/jpeg, image/png" required value="{{ item.image }}" type="file" name="image" id="">
+
+          <label for="description">Description</label>
+          <input required value="{{ item.description }}" type="text" name="description" id="description">
+     
+          <label for="quoteDate">DC Date</label>
+          <input required value="{{ item.dc_date|date:'Y-m-d' }}" type="date" id="quoteDate" name="dc_date">
+
+          <select name="department" id="department">
+            <option value="{{ item.department }}">{{ item.department }}</option>
+            {% for key,value in Departments.items %}
+            <option value="{{ value }}">{{ key }}</option>
+            {% endfor %}
+          </select>
+
+          <label for="totalAmount">Total Amount</label>
+          <input required value="{{ item.total_amount }}" type="number" id="totalAmount" name="total_amount">
+
+          <label for="isPOCreated">IS GRN</label>
+          <input type="checkbox" id="isPOCreated" name="is_grn" {% if item.is_grn %} checked {% endif %}>
+
+          <label for="PO">PO</label>
+          <select id="PO" name="po">
+            {% for a in items %}
+            <option value="{{ a.po_number }}">{{ a.po_number }}</option>
+            {% endfor %}
+          </select>
+          <button type="submit">Edit Delivery Challan</button>
+
+          {% else %}
+          <h2>Add Delivery Challan</h2>
+        <form method="post" enctype="multipart/form-data">
+          {% csrf_token %}
+          <label for="quoteNumber">DC Number</label>
+          <input required type="number" id="quoteNumber" name="dc_number">
+
+          <label for="image">Image</label>
+          <input accept="image/jpeg, image/png" required type="file" name="image" id="">
+
+          <label for="description">Description</label>
+          <input required type="text" name="description" id="description">
+     
+          <label for="quoteDate">DC Date</label>
+          <input required type="date" id="quoteDate" name="dc_date">
+
+          <label for="department">Department</label>
+          <select name="department" id="department">
+            {% for key,value in Departments.items %}
+            <option value="{{ value }}">{{ key }}</option>
+            {% endfor %}
+          </select>
+          
+          <label for="totalAmount">Total Amount</label>
+          <input required type="number" id="totalAmount" name="total_amount">
+
+          <label for="isPOCreated">IS GRN</label>
+          <input type="checkbox" id="isPOCreated" name="is_grn">
+
+          <label for="PO">PO</label>
+          <select id="PO" name="po">
+            {% for a in items %}
+            <option value="{{ a.po_number }}">{{ a.po_number }}</option>
+            {% endfor %}
+          </select>
+          <button type="submit">Add Delivery Challan</button>
+          {% endif %}
+        </form>
+      </div>
+    </section>
+ 
+
+ {% endblock %}

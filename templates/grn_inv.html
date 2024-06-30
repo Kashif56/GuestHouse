@@ -1,0 +1,242 @@
+{% extends 'base.html' %}
+
+
+  {% block title %}
+  
+  <title>PTC GH - GRN Invoice</title> 
+  
+  <style>
+    /* Reset default styles */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Montserrat', sans-serif !important;
+    }
+    .success-message {
+    color: #155724;
+    background-color: #d4edda;
+    border-color: #c3e6cb;
+    padding: 10px;
+    margin-bottom: 10px;
+}
+.navbar-brand a{
+      text-decoration: none;
+      color: white;
+      font-weight: bold;
+    }
+
+    /* Define styles for error messages */
+    .error-message {
+        color: #721c24;
+        background-color: #f8d7da;
+        border-color: #f5c6cb;
+        padding: 10px;
+        margin-bottom: 10px;
+    }
+
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f5f5f5;
+    }
+
+    header {
+      background-color: #051147;
+      color: #fff;
+      padding: 10px 20px;
+    }
+
+    nav {
+      margin:10px 20px ;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .navbar-brand {
+      font-size: 24px;
+    }
+
+    .navbar-links {
+      list-style-type: none;
+      display: flex;
+    }
+
+    .navbar-links li {
+      margin-right: 20px;
+    }
+
+    .navbar-links li a {
+      color: #fff;
+      text-decoration: none;
+      font-size: 16px;
+    }
+
+    /* Hamburger menu styles */
+    .hamburger-menu {
+      display: none;
+      flex-direction: column;
+      cursor: pointer;
+    }
+
+    .hamburger-menu div {
+      width: 25px;
+      height: 3px;
+      background-color: #fff;
+      margin: 3px 0;
+    }
+
+    .main-content {
+      padding: 20px;
+    }
+
+    .form-container {
+      width: 50%;
+      margin: 20px auto;
+    }
+
+    form {
+      background-color: #fff;
+      padding: 20px;
+      border-radius: 5px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+
+    form label {
+      display: block;
+      margin-bottom: 10px;
+      font-weight: bold;
+    }
+
+    form input[type="text"],
+    form input[type="date"],
+    form input[type="number"],
+    form input[type="file"],
+    form select {
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 20px;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+      font-size: 16px;
+    }
+
+    form input[type="checkbox"] {
+      margin-right: 10px;
+    }
+
+    form button {
+        width: 100%;
+      background-color: #051147;
+      color: #fff;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 16px;
+    }
+
+    /* Responsive styles */
+    @media screen and (max-width: 768px) {
+      .navbar-links {
+        display: none;
+      }
+
+      .hamburger-menu {
+        display: flex;
+      }
+
+      .navbar-links.active {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        background-color: #051147;
+        position: absolute;
+        top: 60px;
+        left: 0;
+        width: 100%;
+        padding-top: 20px;
+        z-index: 1;
+      }
+
+      .navbar-links.active li {
+        margin: 10px 0;
+      }
+
+      .navbar-links.active li a {
+        font-size: 18px;
+      }
+
+      .form-container {
+        width: 100%;
+      }
+    }
+
+  </style>
+  {% endblock %}
+  
+{% block nav %}
+<div id="navigation"><div class="navigation">
+  <a href="{% url 'index' %}">Home</a>  /  
+  <span><a href="{% url 'po_list' %}">PO</a></span> /
+  <span><a class="active-nav" href="">GRN Invoice</a></span>
+{% endblock %}
+
+{% block content %}
+  
+    {% if messages %}
+        <ul>
+            {% for message in messages %}
+                <li class="{% if message.tags == 'success' %}success-message{% elif message.tags == 'error' %}error-message{% endif %}">
+                    {{ message }}
+                </li>
+            {% endfor %} 
+        </ul>
+    {% endif %}
+    <section class="main-content">
+      
+      <div class="form-container">
+
+      
+        <h2>GRN Invoice</h2>
+        <form method="post" enctype="multipart/form-data">
+          {% csrf_token %}
+          <label for="quoteNumber">Invoice Number</label>
+          <input value="{{ dc.dc_number }}" type="number" id="quoteNumber" name="invoice_number">
+          
+          <label for="image">Image</label>
+          <input  type="file" name="image" id="">
+
+          <label for="description">Description</label>
+          <input value="{{ dc.description }}" type="text" name="description" id="description">
+     
+          <label for="quoteDate">Invoice Date</label>
+          <input value="{{ dc.dc_date|date:'Y-m-d' }}" type="date" id="quoteDate" name="invoice_date">
+
+          <label for="quoteDate">Sent Date</label>
+          <input type="date" id="quoteDate" name="sent_date">
+
+          <select name="department" id="department" disabled>
+            <option value="{{ dc.department }}">{{ dc.department }}</option>
+          </select>
+
+          <label for="totalAmount">Total Amount</label>
+          <input value="{{ dc.total_amount }}" type="number" id="totalAmount" name="total_amount">
+
+          <label for="isPOCreated">IS Sent</label>
+          <input type="checkbox" id="isPOCreated" name="is_sent">
+
+          <label for="isPOCreated">IS Amount Received</label>
+          <input type="checkbox" id="isPOCreated" name="is_amount_received">
+
+          <label for="PO">PO</label>
+          <select id="PO" name="po" disabled>
+            <option value="{{ dc.po.po_number }}" readonly>{{ dc.po.po_number }} </option>
+          </select>
+          <button type="submit">GRN Invoice</button>
+
+      </div>
+    </section>
+ 
+
+ {% endblock %}

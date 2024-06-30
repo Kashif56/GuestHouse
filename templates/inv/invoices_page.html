@@ -1,0 +1,376 @@
+{% extends 'base.html' %}
+{% load humanize %}
+
+  {% block title %}
+  <title>PTC GH - Invoices List</title>
+  <style>
+    /* Reset default styles */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Montserrat', sans-serif !important;
+    }
+
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f5f5f5;
+    }
+    .navbar-brand a{
+      text-decoration: none;
+      color: white;
+      font-weight: bold;
+    }
+    .success-message {
+    color: #155724;
+    background-color: #d4edda;
+    border-color: #c3e6cb;
+    padding: 10px;
+    margin-bottom: 10px;
+}
+
+    /* Define styles for error messages */
+    .error-message {
+        color: #721c24;
+        background-color: #f8d7da;
+        border-color: #f5c6cb;
+        padding: 10px;
+        margin-bottom: 10px;
+    }
+    header {
+      background-color: #051147;
+      color: #fff;
+      padding: 10px 20px;
+    }
+
+    nav {
+      margin:10px 20px ;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .navbar-brand {
+      font-size: 24px;
+    }
+
+    .navbar-links {
+      list-style-type: none;
+      display: flex;
+    }
+
+    .navbar-links li {
+      margin-right: 20px;
+    }
+
+    .navbar-links li a {
+      color: #fff;
+      text-decoration: none;
+      font-size: 16px;
+    }
+
+    /* Hamburger menu styles */
+    .hamburger-menu {
+      display: none;
+      flex-direction: column;
+      cursor: pointer;
+    }
+
+    .hamburger-menu div {
+      width: 25px;
+      height: 3px;
+      background-color: #fff;
+      margin: 3px 0;
+    }
+
+    .main-content {
+      padding: 20px 40px;
+    }
+
+    .table-container {
+      width: 100%;
+      overflow-x: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+    }
+
+    table th, table td {
+      padding: 10px;
+      border: 1px solid #ddd;
+      text-align: left;
+    }
+
+    table th {
+      background-color: #051147;
+      color: #fff;
+    }
+
+    table tbody tr:nth-child(even) {
+      background-color: #f2f2f2;
+    }
+
+    table tbody tr:hover {
+      background-color: #ddd;
+    }
+
+    .search-container {
+      margin-bottom: 20px;
+    }
+
+    .search-container input[type="text"] {
+      width: 50%;
+      padding: 10px;
+      font-size: 16px;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+      margin-bottom: 10px;
+      margin-top: 20px;
+    }
+    a{
+      color: #1b3bc8;
+      text-decoration: none;
+    }
+
+    /* Responsive styles */
+    @media screen and (max-width: 768px) {
+      .navbar-links {
+        display: none;
+      }
+
+      .hamburger-menu {
+        display: flex;
+      }
+      body{
+        font-size: 14px;
+        padding: 0px !important;
+        margin: 0px !important;
+      }
+
+      nav{
+        margin: 0 0px;
+      }
+      .main-content {
+        padding: 10px;
+        font-size: 12px;
+    }
+
+      .navbar-links.active {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        background-color: #051147;
+        position: absolute;
+        top: 60px;
+        left: 0;
+        width: 100%;
+        padding-top: 20px;
+        z-index: 1;
+      }
+
+      .navbar-links.active li {
+        margin: 10px 0;
+      }
+
+      .navbar-links.active li a {
+        font-size: 16px;
+      }
+    }
+
+  </style>
+  {% endblock %}
+
+  {% block nav %}
+<div id="navigation"><div class="navigation">
+  <a href="{% url 'index' %}">Home</a>  /  
+  <span><a href="">List</a></span> /
+  <span><a class="active-nav" href="{% url 'invoice_list' %}">Invoice List</a></span>
+{% endblock %}
+
+  {% block content %}
+ 
+    <section class="main-content">
+      {% if messages %}
+        <ul>
+            {% for message in messages %}
+                <li class="{% if message.tags == 'success' %}success-message{% elif message.tags == 'error' %}error-message{% endif %}">
+                    {{ message }}
+                </li>
+            {% endfor %}
+        </ul>
+        {% endif %}
+      <div class="table-container">
+        <h2>Invoices List</h2>
+        <div class="search-container">
+          <form class="search-form" method="get">
+            <input {% if search_query %} value="{{ search_query }}" {% endif %} type="text" name='search_query' placeholder="Search...">
+            <select name="method" id="method">
+
+              <option value="" >Search By</option>
+              <option {% if method == 'by_inv' %} selected {% endif %} value="by_inv">By Invoice Number</option>
+              <option {% if method == 'by_dept' %} selected {% endif %} value="by_dept">By Department</option>
+              <option {% if method == 'by_desc' %} selected {% endif %} value="by_desc">By Description</option>
+              <option {% if method == 'by_po' %} selected {% endif %} value="by_po">By PO Number</option>
+            </select>
+            <button class="search">Search</button>
+            <a class="add_btn" href="{% url 'invoice_form' %}">Add Invoice</a>
+          </form>
+        </div>
+
+        {% if request.GET %}
+        <table>
+          <thead>
+          
+            <tr>
+              <th>Invoice NO</th>
+              <th>PO Number</th>
+              <th>Department</th>
+              <th>Invoice Date</th>
+              <th>Amount</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% if results %}
+            {% for item in results %}
+            
+            <tr>
+              <td><a href="{% url 'invoice_detail_page' item.invoice_number %}">{{ item.invoice_number }}</a></td>
+              <td>{{ item.po.po_number }}</td>
+              <td>{{ item.department }}</td>
+              <td>{{ item.invoice_date }}</td>
+              <td>{{ item.total_amount }}</td>
+              <td><a style="color: green;" href="{% url 'edit_invoice' item.invoice_number  %}">Edit</a>
+                <a style="color: red;margin-left: 20px;" href="{% url 'delete_invoice' item.invoice_number %}">Delete</a>
+            </td>
+            </tr>
+            {% endfor %} 
+            {% else %}
+
+            <tr> 
+              <td style="text-align: center; color: rgb(255, 0, 0);" colspan="5">
+                <strong>No Invoice Found for {{ search_query }} - {{ method }}</strong>
+              </td>
+            </tr>
+            {% endif %}
+            <!-- Add more rows here -->
+          </tbody>
+        </table>
+
+        {% else %}
+
+        <!-- Pending Invoices -->
+        <h2>Pending Invoices</h2>
+        <table>
+          <thead>
+          
+            <tr>
+              <th>Invoice NO</th>
+              <th>PO Number</th>
+              <th>Department</th>
+              <th>Invoice Date</th>
+              <th>Amount</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% if items %}
+            {% for item in items %}
+            {% if item.is_amount_received == False %}
+            <tr>
+              <td><a href="{% url 'invoice_detail_page' item.invoice_number %}">{{ item.invoice_number }}</a></td>
+              <td><a href="{% url 'po_detail_page' item.po.po_number %}">{{ item.po.po_number }}</a></td>
+              <td>{{ item.department }}</td>
+              <td>{{ item.invoice_date }}</td>
+              <td>Rs. {{ item.total_amount }}</td>
+              <td>{% if item.is_amount_received %} Received {% else %} Pending {% endif %}</td>
+              <td><a style="color: green;" href="{% url 'edit_invoice' item.invoice_number  %}">Edit</a>
+                <a style="color: red;margin-left: 20px;" href="{% url 'delete_invoice' item.invoice_number %}">Delete</a>
+            </td>
+            </tr>
+            {% endif %}
+            {% endfor %} 
+
+            <tr>
+              <td colspan="3"></td>
+              
+              <td colspan="" style="background-color: #051147;color: white; text-align: center;">Total Amount</td>
+              <td colspan="1" style="background-color: #051147;color: white; text-align: center;">Rs. {{ pending_inv_total }}</td>
+            </tr>
+
+            {% else %}
+
+            <tr> 
+              <td style="text-align: center; color: rgb(255, 0, 0);" colspan="5">
+                <strong>No Invoice</strong>
+              </td>
+            </tr>
+            {% endif %}
+            <!-- Add more rows here -->
+          </tbody>
+        </table>
+
+        <!-- Received Invoices -->
+        <br><br>
+        <h2>Received Invoices</h2>
+        <table>
+          <thead>
+          
+            <tr>
+              <th>Invoice NO</th>
+              <th>PO Number</th>
+              <th>Department</th>
+              <th>Invoice Date</th>
+              <th>Amount</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% if items %}
+            {% for item in items %}
+            {% if item.is_amount_received == True %}
+            <tr>
+              <td><a href="{% url 'invoice_detail_page' item.invoice_number %}">{{ item.invoice_number }}</a></td>
+              <td><a href="{% url 'po_detail_page' item.po.po_number %}">{{ item.po.po_number }}</a></td>
+              <td>{{ item.department }}</td>
+              <td>{{ item.invoice_date }}</td>
+              <td>Rs. {{ item.total_amount }}</td>
+              <td>{% if not item.is_amount_received %} Pending {% else %} Received {% endif %}</td>
+              <td><a style="color: green;" href="{% url 'edit_invoice' item.invoice_number  %}">Edit</a>
+                <a style="color: red;margin-left: 20px;" href="{% url 'delete_invoice' item.invoice_number %}">Delete</a>
+            </td>
+            </tr>
+            {% endif %}
+            {% endfor %} 
+          
+          
+            <tr>
+             
+              <td colspan="3"></td>
+              <td colspan="" style="background-color: #051147;color: white; text-align: center;">Total Amount</td>
+              <td colspan="1" style="background-color: #051147;color: white; text-align: center;">Rs. {{ received_inv_total|intcomma }}</td>
+            </tr>
+            {% else %}
+
+            <tr> 
+              <td style="text-align: center; color: rgb(255, 0, 0);" colspan="5">
+                <strong>No Invoice</strong>
+              </td>
+            </tr>
+            {% endif %}
+            <!-- Add more rows here -->
+          </tbody>
+        </table>
+
+        {% endif %}
+      </div>
+    </section>
+ 
+
+{% endblock %}

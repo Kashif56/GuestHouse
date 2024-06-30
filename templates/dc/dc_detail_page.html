@@ -1,0 +1,191 @@
+{% extends 'base.html' %}
+
+  {% block title %}
+  <title>PTC GH - DC Detail View</title>
+  <style>
+    /* Reset default styles */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Montserrat', sans-serif !important;
+}
+.navbar-brand a{
+      text-decoration: none;
+      color: white;
+      font-weight: bold;
+    }
+.success-message {
+    color: #155724;
+    background-color: #d4edda;
+    border-color: #c3e6cb;
+    padding: 10px;
+    margin-bottom: 10px;
+}
+
+    /* Define styles for error messages */
+    .error-message {
+        color: #721c24;
+        background-color: #f8d7da;
+        border-color: #f5c6cb;
+        padding: 10px;
+        margin-bottom: 10px;
+    }
+
+body {
+  font-family: Arial, sans-serif;
+  background-color: #f5f5f5;
+}
+
+header {
+  background-color: #051147;
+  color: #fff;
+  padding: 10px 20px;
+}
+
+nav {
+  margin:10px 60px ;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.navbar-brand {
+  font-size: 24px;
+}
+
+.navbar-links {
+  list-style-type: none;
+  display: flex;
+}
+
+.navbar-links li {
+  margin-right: 20px;
+}
+
+.navbar-links li a {
+  color: #fff;
+  text-decoration: none;
+  font-size: 16px;
+}
+
+.main-content {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: calc(100vh - 100px); /* Adjust for header height */
+}
+
+.table-container {
+  width: 100%;
+  margin: 0;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+}
+
+table th, table td {
+  padding: 10px;
+  border: 1px solid #ddd;
+  text-align: left;
+}
+
+table th {
+  background-color: #051147;
+  color: #fff;
+}
+
+table tbody tr:nth-child(even) {
+  background-color: #f2f2f2;
+}
+
+table tbody tr:hover {
+  background-color: #ddd;
+}
+
+  </style>
+
+  {% endblock %}
+
+  {% block nav %}
+<div id="navigation"><div class="navigation">
+  <a href="{% url 'index' %}">Home</a>  /  
+  <span><a href="{% url 'dc_list' %}">DCs</a></span> /
+  <span><a class="active-nav" href="{% url 'dc_detail_page' item.dc_number %}">DC# {{ item.dc_number }}</a></span>
+{% endblock %}
+
+{% block content %}
+  
+    {% if messages %}
+    <ul>
+        {% for message in messages %}
+            <li class="{% if message.tags == 'success' %}success-message{% elif message.tags == 'error' %}error-message{% endif %}">
+                {{ message }}
+            </li>
+        {% endfor %}
+  
+    </ul> {% endif %}
+    <section class="main-content">
+      
+      <div class="table-container">
+        <h2>Delivery Challan Detail View #{{ item.dc_number }} 
+          <a style="color: rgb(255, 255, 255); font-size:14px; margin-left: 20px; background-color: #009735; padding: 8px 20px; border-radius: 5px;" href="{% url 'edit_dc' item.dc_number  %}">Edit</a>
+          <a style="color: rgb(255, 255, 255); font-size:14px; margin-left: 20px; background-color: #ff0000; padding: 8px 20px; border-radius: 5px;" href="{% url 'delete_dc' item.dc_number  %}?next={{request.path}}">Delete</a>
+        </h2>
+        <table>
+          <thead>
+            <tr>
+              <th>Field</th>
+              <th>Value</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>DC Number</td>
+              <td>{{ item.dc_number }}</td>
+            </tr>
+            <tr>
+              <td>Image</td>
+              <td><img src="{{ item.image.url }}" height="100" alt="Image"></td>
+            </tr>
+            <tr>
+              <td>Description</td>
+              <td>{{ item.description }}</td>
+            </tr>
+            
+            <tr>
+              <td>DC Date</td>
+              <td>{{ item.dc_date }}</td>
+            </tr>
+            <tr>
+              <td>Department</td>
+              <td>{{ item.department }}</td>
+            </tr>
+            <tr>
+              <td>Total Amount</td>
+              <td>PKR. {{ item.total_amount }}</td>
+            </tr>
+            <tr>
+              <td>IS GRN</td>
+              <td>{{ item.is_grn }}</td>
+            </tr>
+            <tr>
+              <td>PO</td>
+              <td><a href="{% url 'po_detail_page' item.po.po_number %}">{{ item.po.po_number }}</a></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <script>
+      function toggleNavbar() {
+        var navbarLinks = document.querySelector('.navbar-links');
+        navbarLinks.classList.toggle('active');
+      }
+    </script>
+
+{% endblock %}

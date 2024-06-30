@@ -1,0 +1,387 @@
+{% extends 'base.html' %}
+  {% block title %}
+  <title>PTC GH - Delivery Challan</title>
+  <style>
+    /* Reset default styles */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Montserrat', sans-serif !important;
+    }
+
+    .add_btn{
+      background-color: rgb(21, 182, 21);
+      padding: 10px 15px;
+      border-radius: 5px;
+      color: whitesmoke !important;
+      font-weight: bold;
+      margin-left: 18%;
+    }
+
+    .navbar-brand a{
+      text-decoration: none;
+      color: white;
+      font-weight: bold;
+    }
+    .success-message {
+    color: #155724;
+    background-color: #d4edda;
+    border-color: #c3e6cb;
+    padding: 10px;
+    margin-bottom: 10px;
+}
+
+    /* Define styles for error messages */
+    .error-message {
+        color: #721c24;
+        background-color: #f8d7da;
+        border-color: #f5c6cb;
+        padding: 10px;
+        margin-bottom: 10px;
+    }
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f5f5f5;
+    }
+    main{
+      margin-top: -200px;
+    }
+
+    header {
+      background-color: #051147;
+      color: #fff;
+      padding: 10px 20px;
+    }
+
+    nav {
+      margin:10px 20px ;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .navbar-brand {
+      font-size: 24px;
+    }
+
+    .navbar-links {
+      list-style-type: none;
+      display: flex;
+    }
+
+    .navbar-links li {
+      margin-right: 20px;
+    }
+
+    .navbar-links li a {
+      color: #fff;
+      text-decoration: none;
+      font-size: 16px;
+    }
+
+    /* Hamburger menu styles */
+    .hamburger-menu {
+      display: none;
+      flex-direction: column;
+      cursor: pointer;
+    }
+
+    .hamburger-menu div {
+      width: 25px;
+      height: 3px;
+      background-color: #fff;
+      margin: 3px 0;
+    }
+
+    .main-content {
+      padding: 20px 40px;
+    }
+
+    .table-container {
+      width: 100%;
+      overflow-x: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+    }
+
+    table th, table td {
+      padding: 10px;
+      border: 1px solid #ddd;
+      text-align: left;
+    }
+
+    table th {
+      background-color: #051147;
+      color: #fff;
+    }
+
+    table tbody tr:nth-child(even) {
+      background-color: #f2f2f2;
+    }
+
+    table tbody tr:hover {
+      background-color: #ddd;
+    }
+
+    .search-container {
+      margin-bottom: 20px;
+    }
+
+    .search-container input[type="text"] {
+      width: 50%;
+      padding: 10px;
+      font-size: 16px;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+      margin-bottom: 10px;
+      margin-top: 20px;
+    }
+    a{
+      color: #1b3bc8;
+      text-decoration: none;
+    }
+
+    /* Responsive styles */
+    @media screen and (max-width: 768px) {
+      .navbar-links {
+        display: none;
+      }
+
+      .hamburger-menu {
+        display: flex;
+      }
+      body{
+        font-size: 14px;
+        padding: 0px !important;
+        margin: 0px !important;
+      }
+
+      nav{
+        margin: 0 0px;
+      }
+      .main-content {
+        padding: 10px;
+        font-size: 12px;
+    }
+      .table-container{
+        
+      }
+      .navbar-links.active {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        background-color: #051147;
+        position: absolute;
+        top: 60px;
+        left: 0;
+        width: 100%;
+        padding-top: 20px;
+        z-index: 1;
+      }
+
+      .navbar-links.active li {
+        margin: 10px 0;
+      }
+
+      .navbar-links.active li a {
+        font-size: 16px;
+      }
+    }
+
+  </style>
+  {% endblock %}
+
+
+  {% block nav %}
+<div id="navigation" style="margin-top: 220px;"><div class="navigation">
+  <a href="{% url 'index' %}">Home</a>  /  
+  <span><a href="">Lists</a></span> /
+  <span><a class="active-nav" href="{% url 'dc_list' %}">DC List</a></span>
+{% endblock %}
+
+
+    {% block content %}
+ 
+    {% if messages %}
+        <ul>
+            {% for message in messages %}
+                <li class="{% if message.tags == 'success' %}success-message{% elif message.tags == 'error' %}error-message{% endif %}">
+                    {{ message }}
+                </li> 
+            {% endfor %} 
+        </ul> {% endif %}
+    <section class="main-content">
+      
+      <div class="table-container">
+        <h2>Delivery Challan List</h2> 
+        
+       
+        <div class="search-container">
+          <form class="search-form" method="get">
+            <input {% if search_query %} value="{{ search_query }}" {% endif %} type="text" name='search_query' placeholder="Search...">
+            <select name="method" id="method">
+
+              <option value="" >Search By</option>
+              <option {% if method == 'by_dc' %} selected {% endif %} value="by_dc">By DC Number</option>
+              <option {% if method == 'by_dept' %} selected {% endif %} value="by_dept">By Department</option>
+              <option {% if method == 'by_desc' %} selected {% endif %} value="by_desc">By Description</option>
+            </select>
+            <button class="search">Search</button>
+            <a class="add_btn" href="{% url 'dc_form' %}">Add DC</a>
+          </form>
+        </div>
+
+        {% if request.GET %}
+        <table>
+          <thead>
+            <tr>
+              <th>DC NO</th>
+              <th>Description</th>
+              <th>Department</th>
+              <th>DC Date</th>
+              <th>Amount</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% if results %}
+            {% for item in results %}
+            <tr>
+              <td><a href="{% url 'dc_detail_page' item.dc_number %}">{{ item.dc_number }}</a></td>
+              <td>{{ item.description }}</td>
+              <td>{{ item.department }}</td>
+              <td>{{ item.dc_date }}</td>
+              <td>{{ item.total_amount }}</td>
+              <td><a style="color: green;" href="{% url 'edit_dc' item.dc_number  %}">Edit</a>
+                <a style="color: red;margin-left: 20px;" href="{% url 'delete_dc' item.dc_number %}">Delete</a>
+            </td>
+            </tr>
+            {% endfor %}{% else %}
+            <tr> 
+              <td style="text-align: center; color: rgb(255, 0, 0);" colspan="5">
+                <strong>No Delivery Challan Found for {{ search_query }}</strong>
+              </td>
+            </tr>
+            {% endif %}
+            <!-- Add more rows here -->
+          </tbody>
+        </table>
+        {% else %}
+        
+        
+        <!-- Non-GRN Delivery Challans -->
+        <h2>Non-GRN Delivery Challans</h2>
+        <table>
+          <thead>
+          
+            <tr>
+              <th>DC NO</th>
+              <th>Description</th>
+              <th>Department</th>
+              <th>DC Date</th>
+              <th>Amount</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% if items %}
+            {% for item in items %}
+            {% if not item.is_grn %}
+            <tr>
+              <td><a href="{% url 'dc_detail_page' item.dc_number %}">{{ item.dc_number }}</a></td>
+              <td>{{ item.description }}</td>
+              <td>{{ item.department }}</td>
+              <td>{{ item.dc_date }}</td>
+              <td>{{ item.total_amount }}</td>
+              <td><a style="color: green;" href="{% url 'edit_dc' item.dc_number  %}">Edit</a>
+                <a style="color: red;margin-left: 20px;" href="{% url 'delete_dc' item.dc_number %}">Delete</a>
+            </td>
+            </tr>
+            {% endif %}
+            {% endfor %}
+            <!-- NON GRN DC TOTAL -->
+            <tr>
+              <td colspan="3"></td>
+              
+              <td colspan="" style="background-color: #051147;color: white; text-align: center;">Total Amount</td>
+              <td colspan="1" style="background-color: #051147;color: white; text-align: center;">Rs. {{ nonGrn_dc_total }}</td>
+            </tr>
+            <!-- END -->
+            
+            
+            {% else %}
+            <tr> 
+              <td style="text-align: center; color: rgb(255, 0, 0);" colspan="5">
+                <strong>No Delivery Challan Added</strong>
+              </td>
+            </tr>
+            {% endif %}
+            <!-- Add more rows here -->
+          </tbody>
+        </table>
+
+        <!-- GRN Delivery Challans -->
+
+        <br><br>
+
+        <h2>GRNed Delivery Challans</h2>
+        <table>
+          <thead>
+          
+            <tr>
+              <th>DC NO</th>
+              <th>Description</th>
+              <th>Department</th>
+              <th>DC Date</th>
+              <th>Amount</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% if items %}
+            {% for item in items %}
+            {% if item.is_grn %}
+            <tr>
+              <td><a href="{% url 'dc_detail_page' item.dc_number %}">{{ item.dc_number }}</a></td>
+              <td>{{ item.description }}</td>
+              <td>{{ item.department }}</td>
+              <td>{{ item.dc_date }}</td>
+              <td>{{ item.total_amount }}</td>
+              <td><a style="color: green;" href="{% url 'edit_dc' item.dc_number  %}">Edit</a>
+                <a style="color: red;margin-left: 20px;" href="{% url 'delete_dc' item.dc_number %}">Delete</a>
+            </td>
+            </tr>
+            {% endif %}
+            {% endfor %}
+            
+            <!-- GRN DC TOTAL -->
+            <tr>
+              <td colspan="3"></td>
+              
+              <td colspan="" style="background-color: #051147;color: white; text-align: center;">Total Amount</td>
+              <td colspan="1" style="background-color: #051147;color: white; text-align: center;">Rs. {{ grn_dc_total }}</td>
+            </tr>
+            <!-- END -->
+            
+            {% else %}
+            <tr> 
+              <td style="text-align: center; color: rgb(255, 0, 0);" colspan="5">
+                <strong>No Delivery Challan Added</strong>
+              </td>
+            </tr>
+            {% endif %}
+            <!-- Add more rows here -->
+          </tbody>
+        </table>
+
+        {% endif %}
+      </div>
+    </section>
+  
+
+{% endblock %}

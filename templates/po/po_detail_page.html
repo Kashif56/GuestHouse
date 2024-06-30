@@ -1,0 +1,280 @@
+{% extends 'base.html' %}
+
+  {% block title %}
+  <title>PTC GH - PO Detail View</title>
+  <style>
+    /* Reset default styles */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Montserrat', sans-serif !important;
+}
+.navbar-brand a{
+      text-decoration: none;
+      color: white;
+      font-weight: bold;
+    }
+body {
+  font-family: Arial, sans-serif;
+  background-color: #f5f5f5;
+}
+.success-message {
+    color: #155724;
+    background-color: #d4edda;
+    border-color: #c3e6cb;
+    padding: 10px;
+    margin-bottom: 10px;
+}
+
+    /* Define styles for error messages */
+    .error-message {
+        color: #721c24;
+        background-color: #f8d7da;
+        border-color: #f5c6cb;
+        padding: 10px;
+        margin-bottom: 10px;
+    }
+header {
+  background-color: #051147;
+  color: #fff;
+  padding: 10px 20px;
+}
+
+nav {
+  margin:10px 60px ;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.navbar-brand {
+  font-size: 24px;
+}
+
+.navbar-links {
+  list-style-type: none;
+  display: flex;
+}
+
+.navbar-links li {
+  margin-right: 20px;
+}
+
+.navbar-links li a {
+  color: #fff;
+  text-decoration: none;
+  font-size: 16px;
+}
+
+.main-content {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: calc(100vh - 100px); /* Adjust for header height */
+}
+
+.table-container {
+  width: 80%;
+  margin: 0px auto;
+  padding-top: 150px;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+}
+
+table th, table td {
+  padding: 10px;
+  border: 1px solid #ddd;
+  text-align: left;
+}
+
+table th {
+  background-color: #051147;
+  color: #fff;
+}
+
+table tbody tr:nth-child(even) {
+  background-color: #f2f2f2;
+}
+
+table tbody tr:hover {
+  background-color: #ddd;
+}
+
+  </style>
+  {% endblock %}
+
+  {% block nav %}
+<div id="navigation"><div class="navigation">
+  <a href="{% url 'index' %}">Home</a>  /  
+  <span><a href="{% url 'po_list' %}">POs</a></span> /
+  <span><a class="active-nav" href="{% url 'po_detail_page' po_item.po_number %}">PO# {{ po_item.po_number }}</a></span>
+{% endblock %}
+
+
+  {% block content %}
+
+    {% if messages %}
+        <ul>
+            {% for message in messages %}
+                <li class="{% if message.tags == 'success' %}success-message{% elif message.tags == 'error' %}error-message{% endif %}">
+                    {{ message }}
+                </li>
+            {% endfor %}
+        </ul> {% endif %}
+    <section class="main-content">
+      
+      <div class="table-container">
+        <h2>PO Detail View #{{ po_item.po_number }} <a style="color: rgb(255, 255, 255); font-size:14px; margin-left: 20px; background-color: #009735; padding: 8px 20px; border-radius: 5px;" href="{% url 'edit_po' po_item.po_number  %}">Edit</a></h2>
+        <table>
+          <thead>
+            <tr>
+              <th style="width: 50%;">Field</th>
+              <th>Value</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>PO Number</td>
+              <td>{{ po_item.po_number }}</td>
+            </tr>
+          
+            <tr>
+              <td>Description</td>
+              <td>{{ po_item.description }}</td>
+            </tr>
+          
+            <tr>
+              <td>PO Date</td>
+              <td>{{ po_item.po_date }}</td>
+            </tr>
+          
+            <tr>
+              <td>Department</td>
+              <td>{{ po_item.department }}</td>
+            </tr>
+            <tr>
+              <td>Total Amount</td>
+              <td>{{ po_item.po_amount }}</td>
+            </tr>
+            <tr>
+              <td>GRN Amount</td>
+              <td>{{ po_item.grn_amount }}</td>
+            </tr>
+            <tr>
+              <td>Remaining Amount</td>
+              <td>{{ po_item.po_remaining_amount }}</td>
+            </tr>
+
+
+            <tr>
+              <td>
+                  <h3>Delivery Challans</h3>
+              </td>
+              <td>
+                  <h3>Invoices</h3>
+              </td>
+          </tr>
+          
+          <tr>
+              <td>
+                  <table>
+                      <thead>
+                          <tr>
+                              <td><h5>DC Number</h5></th>
+                              <td><h5>Amount</h5></th>
+                              <td><h5>Action</h5></td>
+                          </tr>
+                      </thead>
+                      <tbody>
+                          {% for dc in po_item.dc.all %}
+                          <tr>
+                              <td>
+                                  <a style="color: royalblue; font-weight: 600; text-decoration: underline;" href="{% url 'dc_detail_page' dc.dc_number %}">
+                                      {{ dc.dc_number }}
+                                  </a>
+                              </td>
+                              <td>
+                                  Rs. {{ dc.total_amount }}
+                              </td>
+                              <td>
+                                <a style="color: blue;" href="{% url 'grn_inv' dc.dc_number %}">GRN INV</a>
+                              </td>
+                          </tr>
+                          {% empty %}
+                          <tr>
+                              <td colspan="2">No DC GRN</td>
+                          </tr>
+                          {% endfor %}
+                      </tbody>
+                  </table>
+              </td>
+          
+              <td>
+                  <table>
+                      <thead>
+                          <tr>
+                            <td><h5>Invoice Number</h5></th>
+                              <td><h5>Amount</h5></th>
+                          </tr>
+                      </thead>
+                      <tbody>
+                          {% for invoice in po_item.invoices.all %}
+                          <tr>
+                              <td>
+                                  <a style="color: royalblue; font-weight: 600; text-decoration: underline;" href="{% url 'invoice_detail_page' invoice.invoice_number %}">
+                                      {{ invoice.invoice_number }}
+                                  </a>
+                              </td>
+                              <td>
+                                  Rs. {{ invoice.total_amount }}
+                              </td>
+                          </tr>
+                          {% empty %}
+                          <tr>
+                              <td colspan="2">No Invoices GRN</td>
+                          </tr>
+                          {% endfor %}
+                      </tbody>
+                  </table>
+              </td>
+          </tr>
+
+
+      
+        
+        
+        
+   
+          
+          
+
+          
+   
+       
+            <!-- Warning MEssage if something is wrong with Dc and Invoice -->
+            <tr>
+              <td colspan="2"><h3>Errors</h3></td>
+            </tr>
+
+
+          
+            <tr>
+              <td colspan="2" style="color: red;">
+                {{ count_error_msg }} <br> {{ refNo_error_msg }} <br> {{ amount_error_msg }} <br> {{ date_error_msg }}
+              </td>
+            </tr>
+           
+         
+          
+          </tbody>
+        </table>
+      </div>
+    </section>
+ 
+
+  {% endblock %}

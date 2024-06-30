@@ -1,0 +1,186 @@
+{% extends 'base.html' %}
+  {% block title %}
+  <title>PTC GH - Detail View</title>
+  <style>
+    /* Reset default styles */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Montserrat', sans-serif !important;
+}
+.success-message {
+    color: #155724;
+    background-color: #d4edda;
+    border-color: #c3e6cb;
+    padding: 10px;
+    margin-bottom: 10px;
+}
+
+    /* Define styles for error messages */
+    .error-message {
+        color: #721c24;
+        background-color: #f8d7da;
+        border-color: #f5c6cb;
+        padding: 10px;
+        margin-bottom: 10px;
+    }
+
+    .navbar-brand a{
+      text-decoration: none;
+      color: white;
+      font-weight: bold;
+    }
+body {
+  font-family: Arial, sans-serif;
+  background-color: #f5f5f5;
+}
+
+header {
+  background-color: #051147;
+  color: #fff;
+  padding: 10px 20px;
+}
+
+nav {
+  margin:10px 60px ;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.navbar-brand {
+  font-size: 24px;
+}
+
+.navbar-links {
+  list-style-type: none;
+  display: flex;
+}
+
+.navbar-links li {
+  margin-right: 20px;
+}
+
+.navbar-links li a {
+  color: #fff;
+  text-decoration: none;
+  font-size: 16px;
+}
+
+.main-content {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: calc(100vh - 100px); /* Adjust for header height */
+}
+
+.table-container {
+  width: 80%;
+  margin: 0 auto;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+}
+
+table th, table td {
+  padding: 10px;
+  border: 1px solid #ddd;
+  text-align: left;
+}
+
+table th {
+  background-color: #051147;
+  color: #fff;
+}
+
+table tbody tr:nth-child(even) {
+  background-color: #f2f2f2;
+}
+
+table tbody tr:hover {
+  background-color: #ddd;
+}
+
+  </style>
+  {% endblock %}
+
+  {% block nav %}
+<div id="navigation"><div class="navigation">
+  <a href="{% url 'index' %}">Home</a>  /  
+  <span><a href="{% url 'quote_list' %}">Quotes</a></span> /
+  <span><a class="active-nav" href="{% url 'quote_detail_page' item.quote_number %}">Quote# {{ item.quote_number }}</a></span>
+{% endblock %}
+
+  {% block content %}
+ 
+    {% if messages %}
+        <ul>
+            {% for message in messages %}
+                <li class="{% if message.tags == 'success' %}success-message{% elif message.tags == 'error' %}error-message{% endif %}">
+                    {{ message }}
+                </li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+    <section class="main-content">
+      
+      <div class="table-container">
+        <h2>Quote Detail View for #{{ item.quote_number }}  <a style="color: rgb(255, 255, 255); font-size:14px; margin-left: 20px; background-color: #009735; padding: 8px 20px; border-radius: 5px;" href="{% url 'edit_quote' item.quote_number  %}">Edit</a></h2>
+        <table>
+          <thead>
+            <tr>
+              <th>Field</th>
+              <th>Value</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Quote Number</td>
+              <td>{{ item.quote_number }}</td>
+            </tr>
+            <tr>
+              <td>Image</td>
+              <td><img src="https://marketplace.canva.com/EAFC1OcYOM0/2/0/1131w/canva-black-white-minimalist-simple-creative-freelancer-invoice-pyLVaYlAk1o.jpg" height="100" alt="Image"></td>
+            </tr>
+            <tr>
+              <td>Description</td>
+              <td>{{ item.description }}</td>
+            </tr>
+            <tr>
+              <td>Participants</td>
+              <td>{{ item.participants }}</td>
+            </tr>
+            <tr>
+              <td>Event Date</td>
+              <td>{{ item.event_date }}</td>
+            </tr>
+            <tr>
+              <td>Quote Date</td>
+              <td>{{ item.quote_date }}</td>
+            </tr>
+            <tr>
+              <td>Department</td>
+              <td>{{ item.department }}</td>
+            </tr>
+            <tr>
+              <td>Total Amount</td>
+              <td>{{ item.total_amount }}</td>
+            </tr>
+            <tr>
+              <td>Is PO created</td>
+              <td>{{ item.is_po_approved }}</td>
+            </tr>
+            <tr>
+              <td>PO</td>
+              <td>{{ item.po.po_number }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+ 
+{% endblock %}
