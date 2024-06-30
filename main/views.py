@@ -19,7 +19,7 @@ DEPARTMENTS = {
 }
 
 def index(request):
-    return render(request, 'home.html')
+    return render(request, 'Home.html')
 
 # ==============================================================
 #                          PurchaseOrder
