@@ -23,9 +23,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-DEBUG = False
+DEBUG = True
 SECRET_KEY = 'django-insecure-70sfwr7f4#%)t^z7o(x=2*+r+00zmzck3k*ub(z!o=t3zh$lao'
-ALLOWED_HOSTS = ['localhost', '127.0.0.1:8000', 'https://guesthouse.up.railway.app', 'guesthouse.up.railway.app']
+ALLOWED_HOSTS = ['localhost', '127.0.0.1:8000', 'https://guesthouse.up.railway.app/', 'guesthouse.up.railway.app']
 
 
 # Application definition
@@ -140,3 +140,7 @@ STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 
 CSRF_COOKIE_SECURE = True  # Set to False if developing locally without HTTPS
 CSRF_COOKIE_HTTPONLY = True
+SECURE_SSL_REDIRECT=True
+SECURE_HSTS_SECONDS=3600
+SECURE_HSTS_INCLUDE_SUBDOMAINS=True
+SECURE_HSTS_PRELOAD=True
