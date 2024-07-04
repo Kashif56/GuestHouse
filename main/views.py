@@ -636,7 +636,7 @@ def grn_dc(request, po_number):
         is_grn = request.POST.get('is_grn') == 'on'
  
 
-        if int(total_amount) < po.po_amount:
+        if int(total_amount) <= po.po_amount:
             dc = DeliveryChallan(
                     dc_number=dc_number,
                     image=image,
