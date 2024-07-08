@@ -695,7 +695,7 @@ def grn_dc(request, po_number):
         is_grn = request.POST.get('is_grn') == 'on'
  
 
-        if int(total_amount) < po.po_amount:
+        if int(total_amount) <= po.po_amount:
             dc = DeliveryChallan(
                     dc_number=dc_number,
                     image=image,
@@ -826,6 +826,7 @@ def department_list(request):
     
 
     return render(request, 'dept/all_departments_list.html', context)
+<<<<<<< HEAD
 
 
 def export_invoices_to_excel(request):
@@ -878,3 +879,5 @@ def export_invoices_to_excel(request):
     wb.save(response)
 
     return response
+=======
+>>>>>>> 617cc514d5e4117db8ae2d3e970fba98c694ca8e
