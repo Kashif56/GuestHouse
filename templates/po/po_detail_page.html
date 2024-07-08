@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-
+{% load humanize %}
   {% block title %}
   <title>PTC GH - PO Detail View</title>
   <style>
@@ -142,7 +142,12 @@ table tbody tr:hover {
               <td>PO Number</td>
               <td>{{ po_item.po_number }}</td>
             </tr>
-          
+            
+            <tr>
+              <td>PO Creater</td>
+              <td>{{ po_item.po_creater }}</td>
+            </tr>
+
             <tr>
               <td>Description</td>
               <td>{{ po_item.description }}</td>
@@ -159,15 +164,24 @@ table tbody tr:hover {
             </tr>
             <tr>
               <td>Total Amount</td>
-              <td>{{ po_item.po_amount }}</td>
+              <td>Rs. {{ po_item.po_amount|intcomma }}</td>
             </tr>
             <tr>
               <td>GRN Amount</td>
-              <td>{{ po_item.grn_amount }}</td>
+              <td>Rs. {{ po_item.grn_amount|intcomma }}</td>
             </tr>
             <tr>
               <td>Remaining Amount</td>
-              <td>{{ po_item.po_remaining_amount }}</td>
+              <td>Rs. {{ po_item.po_remaining_amount|intcomma }}</td>
+            </tr>
+
+            <tr>
+              <td>GRN Amount by DC</td>
+              <td>Rs. {{ po_item.grn_amount_by_dc|intcomma }}</td>
+            </tr>
+            <tr>
+              <td>Remaining Amount by DC</td>
+              <td>Rs. {{ po_item.po_remaining_amount_by_dc|intcomma }}</td>
             </tr>
 
 
@@ -199,7 +213,7 @@ table tbody tr:hover {
                                   </a>
                               </td>
                               <td>
-                                  Rs. {{ dc.total_amount }}
+                                  Rs. {{ dc.total_amount|intcomma }}
                               </td>
                               <td>
                                 <a style="color: blue;" href="{% url 'grn_inv' dc.dc_number %}">GRN INV</a>
@@ -231,7 +245,7 @@ table tbody tr:hover {
                                   </a>
                               </td>
                               <td>
-                                  Rs. {{ invoice.total_amount }}
+                                  Rs. {{ invoice.total_amount|intcomma }}
                               </td>
                           </tr>
                           {% empty %}

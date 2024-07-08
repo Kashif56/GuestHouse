@@ -6,6 +6,7 @@ class DeliveryChallan(models.Model):
     image = models.ImageField(upload_to='dc_images/', validators=[validate_file_extension])
     description = models.CharField(max_length=1000)
     dc_date = models.DateField()
+    grn_id = models.CharField(max_length=100, default='1')
     department = models.CharField(max_length=100)
     total_amount = models.IntegerField()
     is_grn = models.BooleanField(default=False)
@@ -34,11 +35,13 @@ class Invoice(models.Model):
     image = models.ImageField(upload_to='invoice_images/', validators=[validate_file_extension])
     description = models.CharField(max_length=1000)
     invoice_date = models.DateField()
+    grn_id = models.CharField(max_length=100, default='1')
     sent_date = models.DateField(blank=True, null=True)
     department = models.CharField(max_length=100)
     total_amount = models.IntegerField()
     is_sent = models.BooleanField(default=False)
     po = models.ForeignKey('PurchaseOrder', on_delete=models.CASCADE)
+    dc = models.ManyToManyField(DeliveryChallan)
     is_amount_received = models.BooleanField(default=False)
 
     def __str__(self):
@@ -50,11 +53,16 @@ class Invoice(models.Model):
 
 class PurchaseOrder(models.Model):
     po_number = models.CharField(max_length=100)
+    po_creater = models.CharField(max_length=100, default='PTC')
     description = models.CharField(max_length=1000)
     po_date = models.DateField()
     department = models.CharField(max_length=100)
     po_amount = models.IntegerField()
     grn_amount = models.IntegerField(default=0)
+
+    grn_amount_by_dc = models.IntegerField(default=0)
+    po_remaining_amount_by_dc = models.IntegerField(blank=True, null=True)
+    
     po_remaining_amount = models.IntegerField(blank=True, null=True)
     dc = models.ManyToManyField(DeliveryChallan, null=True, blank=True)
     invoices = models.ManyToManyField(Invoice, null=True, blank=True)

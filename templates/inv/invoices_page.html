@@ -203,7 +203,7 @@
         </ul>
         {% endif %}
       <div class="table-container">
-        <h2>Invoices List</h2>
+        <h2>Invoices List</h2> 
         <div class="search-container">
           <form class="search-form" method="get">
             <input {% if search_query %} value="{{ search_query }}" {% endif %} type="text" name='search_query' placeholder="Search...">
@@ -216,6 +216,7 @@
               <option {% if method == 'by_po' %} selected {% endif %} value="by_po">By PO Number</option>
             </select>
             <button class="search">Search</button>
+            <a href="{% url 'export_inv_to_excel' %}">Export to Excel</a>
             <a class="add_btn" href="{% url 'invoice_form' %}">Add Invoice</a>
           </form>
         </div>
@@ -287,7 +288,7 @@
               <td><a href="{% url 'po_detail_page' item.po.po_number %}">{{ item.po.po_number }}</a></td>
               <td>{{ item.department }}</td>
               <td>{{ item.invoice_date }}</td>
-              <td>Rs. {{ item.total_amount }}</td>
+              <td>Rs. {{ item.total_amount|intcomma }}</td>
               <td>{% if item.is_amount_received %} Received {% else %} Pending {% endif %}</td>
               <td><a style="color: green;" href="{% url 'edit_invoice' item.invoice_number  %}">Edit</a>
                 <a style="color: red;margin-left: 20px;" href="{% url 'delete_invoice' item.invoice_number %}">Delete</a>
@@ -300,7 +301,7 @@
               <td colspan="3"></td>
               
               <td colspan="" style="background-color: #051147;color: white; text-align: center;">Total Amount</td>
-              <td colspan="1" style="background-color: #051147;color: white; text-align: center;">Rs. {{ pending_inv_total }}</td>
+              <td colspan="1" style="background-color: #051147;color: white; text-align: center;">Rs. {{ pending_inv_total|intcomma }}</td>
             </tr>
 
             {% else %}
@@ -340,7 +341,7 @@
               <td><a href="{% url 'po_detail_page' item.po.po_number %}">{{ item.po.po_number }}</a></td>
               <td>{{ item.department }}</td>
               <td>{{ item.invoice_date }}</td>
-              <td>Rs. {{ item.total_amount }}</td>
+              <td>Rs. {{ item.total_amount|intcomma }}</td>
               <td>{% if not item.is_amount_received %} Pending {% else %} Received {% endif %}</td>
               <td><a style="color: green;" href="{% url 'edit_invoice' item.invoice_number  %}">Edit</a>
                 <a style="color: red;margin-left: 20px;" href="{% url 'delete_invoice' item.invoice_number %}">Delete</a>

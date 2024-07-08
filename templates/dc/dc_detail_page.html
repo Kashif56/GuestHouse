@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-
+{% load humanize %}
   {% block title %}
   <title>PTC GH - DC Detail View</title>
   <style>
@@ -114,7 +114,7 @@ table tbody tr:hover {
 <div id="navigation"><div class="navigation">
   <a href="{% url 'index' %}">Home</a>  /  
   <span><a href="{% url 'dc_list' %}">DCs</a></span> /
-  <span><a class="active-nav" href="{% url 'dc_detail_page' item.dc_number %}">DC# {{ item.dc_number }}</a></span>
+  <span><a class="active-nav" href="{% url 'dc_detail_page' item.dc_number %}">DC# {{ item.dc_number }}</a></span> 
 {% endblock %}
 
 {% block content %}
@@ -166,12 +166,20 @@ table tbody tr:hover {
             </tr>
             <tr>
               <td>Total Amount</td>
-              <td>PKR. {{ item.total_amount }}</td>
+              <td>Rs. {{ item.total_amount|intcomma }}</td>
             </tr>
             <tr>
               <td>IS GRN</td>
-              <td>{{ item.is_grn }}</td>
+              <td>{% if item.is_grn %} Yes {% else %} No {% endif %}</td>
             </tr>
+
+            {% if item.is_grn %}
+            <tr>
+              <td>GRN ID</td>
+              <td>{{ item.grn_id }}</td>
+            </tr>
+            {% endif %}
+            
             <tr>
               <td>PO</td>
               <td><a href="{% url 'po_detail_page' item.po.po_number %}">{{ item.po.po_number }}</a></td>

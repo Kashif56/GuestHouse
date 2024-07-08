@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-
+{% load humanize %}
 
   {% block title %}
   <title>PTC GH - PO List</title>
@@ -243,7 +243,7 @@
               <td>{{ item.description }}</td>
               <td>{{ item.department }}</td>
               <td>{{ item.po_date }}</td>
-              <td>{{ item.po_amount }}</td>
+              <td>Rs. {{ item.po_amount|intcomma }}</td>
               <td><a style="color: green;" href="{% url 'edit_po' item.po_number  %}">Edit</a>
                 <a style="color: red;margin-left: 20px;" href="{% url 'delete_po' item.po_number %}">Delete</a>
             </td>
@@ -290,11 +290,14 @@
               <td>{{ item.description }}</td>
               <td>{{ item.department }}</td>
               <td>{{ item.po_date }}</td>
-              <td>{{ item.po_amount }}</td>
+              <td>Rs. {{ item.po_amount|intcomma }}</td>
               <td>{% if item.po_amount == item.grn_amount %} Closed {% else %} Open {% endif %}</td>
               <td><a style="color: green;" href="{% url 'edit_po' item.po_number  %}">Edit</a>
+
+                <!-- If Po Amount and GRN Amount is same then dont display edit button -->
+                {% if item.po_amount != item.grn_amount %}
                 <a style="color: rgb(2, 107, 4);margin-left: 20px;" href="{% url 'grn_dc' item.po_number %}">GRN DC</a>
-               
+               {% endif %}
                 <a style="color: red;margin-left: 20px;" href="{% url 'delete_po' item.po_number %}">Delete</a>
                 
             </td>
@@ -341,7 +344,7 @@
               <td>{{ item.description }}</td>
               <td>{{ item.department }}</td>
               <td>{{ item.po_date }}</td>
-              <td>{{ item.po_amount }}</td>
+              <td>{{ item.po_amount|intcomma }}</td>
               <td>{% if item.po_amount == item.grn_amount %} Closed {% else %} Open {% endif %}</td>
               <td><a style="color: green;" href="{% url 'edit_po' item.po_number  %}">Edit</a>
                 <a style="color: red;margin-left: 20px;" href="{% url 'delete_po' item.po_number %}">Delete</a>

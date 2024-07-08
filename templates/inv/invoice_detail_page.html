@@ -1,4 +1,7 @@
 {% extends 'base.html' %}
+{% load humanize %}
+
+
   {% block title %}
   <title>PTC GH - Invoice Detail View</title>
   <style>
@@ -168,19 +171,26 @@ table tbody tr:hover {
             </tr>
             <tr>
               <td>Total Amount</td>
-              <td>PKR {{ item.total_amount }}</td>
+              <td>Rs. {{ item.total_amount|intcomma }}</td>
             </tr>
             <tr>
               <td>Is Sent</td>
-              <td>{{ item.is_sent }}</td>
+              <td>{% if item.is_sent %} Yes {% else %} No {% endif %}</td>
             </tr>
             <tr>
               <td>Is Amount Received</td>
-              <td>{{ item.is_amount_received }}</td>
+              <td>{% if item.is_amount_received %} Yes {% else %} No {% endif %}</td>
             </tr>
             <tr>
               <td>PO</td>
               <td><a href="{% url 'po_detail_page' item.po.po_number %}">{{ item.po.po_number }}</a></td>
+            </tr>
+
+            <tr>
+              <td>Delivery Challan</td>
+              {% for dc in item.dc.all %}
+              <td><a href="{% url 'dc_detail_page' dc.dc_number %}">{{ dc.dc_number }} - {{ dc.description }}</a></td>
+              {% endfor %}
             </tr>
           </tbody>
         </table>

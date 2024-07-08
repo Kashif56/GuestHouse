@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-
+{% load humanize %}
 {% block title %}
   <title>PTC GH - Quotes</title>
   <style>
@@ -241,7 +241,7 @@
               <td>{{ item.description }}</td>
               <td>{{ item.department }}</td>
               <td>{{ item.quote_date }}</td>
-              <td>Rs.{{ item.total_amount }}</td>
+              <td>Rs. {{ item.total_amount|intcomma }}</td>
               <td><a style="color: green;" href="{% url 'edit_quote' item.quote_number  %}">Edit</a>
                   <a style="color: red;margin-left: 20px;" href="{% url 'delete_quote' item.quote_number %}">Delete</a>
               </td>
@@ -279,7 +279,7 @@
               <td>{{ item.description }}</td>
               <td>{{ item.department }}</td>
               <td>{{ item.quote_date }}</td>
-              <td>Rs.{{ item.total_amount }}</td>
+              <td>Rs.{{ item.total_amount|intcomma }}</td>
               <td><a style="color: green;" href="{% url 'edit_quote' item.quote_number  %}">Edit</a>
                   <a style="color: red;margin-left: 20px;" href="{% url 'delete_quote' item.quote_number %}">Delete</a>
               </td>

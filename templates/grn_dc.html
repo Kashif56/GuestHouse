@@ -204,6 +204,9 @@
           <label for="quoteNumber">DC Number</label>
           <input type="number" id="quoteNumber" name="dc_number">
           
+          <label for="quoteNumber">GRN ID</label>
+          <input type="text" id="quoteNumber" name="grn_id">
+
           <label for="image">Image</label>
           <input  type="file" name="image" id="">
 
@@ -213,7 +216,7 @@
           <label for="quoteDate">DC Date</label>
           <input type="date" id="quoteDate" name="dc_date">
 
-          <select name="department" id="department" disabled>
+          <select name="department" id="department" readonly>
             <option value="{{ item.department }}">{{ po.department }}</option>
           </select>
 
@@ -224,7 +227,7 @@
           <input type="checkbox" id="isPOCreated" name="is_grn">
 
           <label for="PO">PO</label>
-          <select id="PO" name="po" disabled>
+          <select id="PO" name="po" readonly>
             <option value="{{ po.po_number }}" readonly>{{ po.po_number }} </option>
           </select>
           <button type="submit">GRN Delivery Challan</button>

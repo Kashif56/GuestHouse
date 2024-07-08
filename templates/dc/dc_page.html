@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load humanize %}
   {% block title %}
   <title>PTC GH - Delivery Challan</title>
   <style>
@@ -249,25 +250,25 @@
             </tr>
           </thead>
           <tbody>
-            {% if results %}
+
             {% for item in results %}
             <tr>
               <td><a href="{% url 'dc_detail_page' item.dc_number %}">{{ item.dc_number }}</a></td>
               <td>{{ item.description }}</td>
               <td>{{ item.department }}</td>
               <td>{{ item.dc_date }}</td>
-              <td>{{ item.total_amount }}</td>
+              <td>Rs. {{ item.total_amount|intcomma }}</td>
               <td><a style="color: green;" href="{% url 'edit_dc' item.dc_number  %}">Edit</a>
                 <a style="color: red;margin-left: 20px;" href="{% url 'delete_dc' item.dc_number %}">Delete</a>
             </td>
             </tr>
-            {% endfor %}{% else %}
+            {% empty %}
             <tr> 
               <td style="text-align: center; color: rgb(255, 0, 0);" colspan="5">
                 <strong>No Delivery Challan Found for {{ search_query }}</strong>
               </td>
             </tr>
-            {% endif %}
+            {% endfor %}
             <!-- Add more rows here -->
           </tbody>
         </table>
@@ -297,7 +298,7 @@
               <td>{{ item.description }}</td>
               <td>{{ item.department }}</td>
               <td>{{ item.dc_date }}</td>
-              <td>{{ item.total_amount }}</td>
+              <td>Rs. {{ item.total_amount|intcomma }}</td>
               <td><a style="color: green;" href="{% url 'edit_dc' item.dc_number  %}">Edit</a>
                 <a style="color: red;margin-left: 20px;" href="{% url 'delete_dc' item.dc_number %}">Delete</a>
             </td>
@@ -309,7 +310,7 @@
               <td colspan="3"></td>
               
               <td colspan="" style="background-color: #051147;color: white; text-align: center;">Total Amount</td>
-              <td colspan="1" style="background-color: #051147;color: white; text-align: center;">Rs. {{ nonGrn_dc_total }}</td>
+              <td colspan="1" style="background-color: #051147;color: white; text-align: center;">Rs. {{ nonGrn_dc_total|intcomma }}</td>
             </tr>
             <!-- END -->
             
@@ -351,7 +352,9 @@
               <td>{{ item.description }}</td>
               <td>{{ item.department }}</td>
               <td>{{ item.dc_date }}</td>
-              <td>{{ item.total_amount }}</td>
+              
+              <td>{{ item.total_amount|intcomma }}</td>
+
               <td><a style="color: green;" href="{% url 'edit_dc' item.dc_number  %}">Edit</a>
                 <a style="color: red;margin-left: 20px;" href="{% url 'delete_dc' item.dc_number %}">Delete</a>
             </td>
@@ -364,7 +367,7 @@
               <td colspan="3"></td>
               
               <td colspan="" style="background-color: #051147;color: white; text-align: center;">Total Amount</td>
-              <td colspan="1" style="background-color: #051147;color: white; text-align: center;">Rs. {{ grn_dc_total }}</td>
+              <td colspan="1" style="background-color: #051147;color: white; text-align: center;">Rs. {{ grn_dc_total|intcomma }}</td>
             </tr>
             <!-- END -->
             

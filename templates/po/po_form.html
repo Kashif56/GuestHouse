@@ -148,6 +148,14 @@
           <label for="quoteNumber">PO Number</label>
           <input required value="{{ item.po_number }}" type="number" id="quoteNumber" name="po_number">
 
+          <label for="description">PO Creater</label>
+          <select name="department" id="po_creater">
+            <option value="{{ item.po_creater }}">{{ item.po_creater }}</option>
+            {% for a in po_creator %}
+            <option value="{{ a }}">{{ a }}</option>
+            {% endfor %}
+          </select>
+
           <label for="description">Description</label>
           <input required value="{{ item.description }}" type="text" name="description" id="description">
 
@@ -179,6 +187,14 @@
           {% csrf_token %}
           <label for="quoteNumber">PO Number</label>
           <input required type="number" id="quoteNumber" name="po_number">
+
+          <label for="description">PO Creater</label>
+          <select name="po_creater" id="po_creater">
+            <option>Select PO Creater</option>
+            {% for a in po_creater %}
+            <option value="{{ a }}">{{ a }}</option>
+            {% endfor %}
+          </select>
 
           <label for="description">Description</label>
           <input required type="text" name="description" id="description">

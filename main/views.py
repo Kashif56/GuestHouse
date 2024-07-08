@@ -2,6 +2,11 @@ from django.shortcuts import render, get_object_or_404 , redirect, HttpResponseR
 from django.contrib import messages
 from django.core.exceptions import ValidationError
 from .validators import validate_file_extension
+from openpyxl.styles import Font, PatternFill, Border, Side
+
+from openpyxl import Workbook
+from django.http import HttpResponse
+
 
 from .models import PurchaseOrder, Invoice, DeliveryChallan, Quote
 
@@ -18,6 +23,19 @@ DEPARTMENTS = {
     'Quality': 'Quality',
 }
 
+PO_CREATER = [
+    'Amina Sardar' , 
+    'Khan Muhammad', 
+    'Atta Ullah', 
+    'Najam', 
+    'Saad Hafeez', 
+    'Hassan Amin',
+    'Mian Hameed','PTC', 
+    'Other',
+]
+
+
+
 def index(request):
     return render(request, 'Home.html')
 
@@ -28,7 +46,7 @@ def po_list(request):
     if request.method == 'GET':
         search_query = request.GET.get('search_query')
         search_method = request.GET.get('method')
-        results = {}
+        results = None
         if search_query and search_method:
             if search_method == 'by_po':
                 # Filter by PO Number
@@ -90,12 +108,14 @@ def po_detail_page(request, po_number):
 def po_form_page(request):
     context = {}
     context['Departments'] = DEPARTMENTS
+    context['po_creater'] = PO_CREATER
     if request.method == 'POST':
         po_number = request.POST['po_number']
         description = request.POST['description']
         po_date = request.POST['po_date']
         department = request.POST['department']
         po_amount = request.POST['po_amount']
+        po_creater = request.POST['po_creater']
      
         po = PurchaseOrder(
             po_number=po_number,
@@ -103,6 +123,7 @@ def po_form_page(request):
             po_date=po_date,
             department=department,
             po_amount=po_amount,
+            po_creater=po_creater,
         )
         po.save()
         messages.success(request, 'Purchase Order has been added successfully.')
@@ -124,8 +145,9 @@ def edit_po(request, po_number):
         po_date = request.POST['po_date']
         department = request.POST['department']
         po_amount = request.POST['po_amount']
+        po_creater = request.POST['po_creater']
       
-             
+        po.po_creater = po_creater
         po.po_number = po_number
         po.description = description
         po.po_date = po_date
@@ -152,30 +174,31 @@ def delete_po(request, po_number):
 # ==============================================================
 
 def quotes_list(request):
-    if request.method == 'GET':
-        search_query = request.GET.get('search_query')
-        search_method = request.GET.get('method')
-        results = {}
-        if search_query and search_method:
-            if search_method == 'by_quote':
-                # Filter by PO Number
-                results = Quote.objects.filter(quote_number__exact=search_query).order_by('-id')
-            elif search_method == 'by_dept':
-                # Filter by Department
-                results = Quote.objects.filter(department__iexact=search_query).order_by('-id')
-            elif search_method == 'by_desc':
-                # Filter by Description
-                results = Quote.objects.filter(description__icontains=search_query).order_by('-id')
-       
+    search_query = request.GET.get('search_query')
+    search_method = request.GET.get('method')
+    results = None  # Initialize results as None
 
+    if search_query and search_method:
+        if search_method == 'by_quote':
+            # Filter by Quote Number
+            results = Quote.objects.filter(quote_number__exact=search_query).order_by('-id')
+        elif search_method == 'by_dept':
+            # Filter by Department
+            results = Quote.objects.filter(department__iexact=search_query).order_by('-id')
+        elif search_method == 'by_desc':
+            # Filter by Description
+            results = Quote.objects.filter(description__icontains=search_query).order_by('-id')
 
+    # Fetch all Quote objects
     list = Quote.objects.all().order_by('-id')
+
     context = {
-        'items':list,
+        'items': list,
         'results': results,
         'search_query': search_query,
         'method': search_method,
     }
+
     return render(request, 'quote/quotes_page.html', context)
 
 def quote_detail_page(request, quote_number):
@@ -284,20 +307,28 @@ def dc_list(request):
         
         search_query = request.GET.get('search_query')
         search_method = request.GET.get('method')
+
+        # Initialize context with default values
+        context = {
+            'search_query': search_query,
+            'method': search_method,
+        }
         
         if search_query and search_method:
             if search_method == 'by_dc':
-                # Filter by PO Number
+                # Filter by DC Number
                 results = DeliveryChallan.objects.filter(dc_number__exact=search_query).order_by('-id')
-                context['results'] = results
             elif search_method == 'by_dept':
                 # Filter by Department
                 results = DeliveryChallan.objects.filter(department__iexact=search_query).order_by('-id')
-                context['results'] = results
             elif search_method == 'by_desc':
                 # Filter by Description
                 results = DeliveryChallan.objects.filter(description__icontains=search_query).order_by('-id')
-                context['results'] = results
+            else:
+                results = []
+
+            # Add results to context if they exist
+            context['results'] = results
        
 
 
@@ -307,21 +338,17 @@ def dc_list(request):
     nonGrn_dc_total = 0
     
     # Adding Total Amount based on Condition(IF DC is GRN or Not)
-    for item in list:
-        if item.is_grn == True:
-            grn_dc_total += item.total_amount
-        else:
-            nonGrn_dc_total += item.total_amount
+    # Calculate total amounts
+    grn_dc_total = sum(item.total_amount for item in list if item.is_grn)
+    nonGrn_dc_total = sum(item.total_amount for item in list if not item.is_grn)
 
   
-    context = {
-        'items':list,
-        'peding'
-        'search_query': search_query,
-        'method': search_method,
-        'nonGrn_dc_total':nonGrn_dc_total,
+    context.update({
+        'items': list,
+        'nonGrn_dc_total': nonGrn_dc_total,
         'grn_dc_total': grn_dc_total,
-    }
+    })
+    
     return render(request, 'dc/dc_page.html', context)
 
 def dc_detail_page(request, dc_number):
@@ -342,37 +369,45 @@ def dc_form_page(request):
         department = request.POST['department']
         total_amount = request.POST['total_amount']
         is_grn = request.POST.get('is_grn') == 'on'
+        grn_id = request.POST['grn_id']
         po_number = request.POST['po']
         
         po = get_object_or_404(PurchaseOrder, po_number=po_number)
         
-        try:
-            validate_file_extension(image)
-            valid_mime_types = ['image/jpeg', 'image/png']
-            if image.content_type not in valid_mime_types:
-                raise ValidationError('Unsupported file type.')
+      
             
-            dc = DeliveryChallan(
-                    dc_number=dc_number,
-                    image=image,
-                    description=description,
-                    dc_date=dc_date,
-                    department=department,
-                    total_amount=total_amount,
-                    is_grn=is_grn,
-                    po=po,
-            )
+        dc = DeliveryChallan(
+            dc_number=dc_number,
+            image=image,
+            description=description,
+            dc_date=dc_date,
+            department=department,
+            total_amount=total_amount,
+            is_grn=is_grn,
+            grn_id=grn_id,
+            po=po,
+        )
 
-            dc.save()   
+        dc.save()   
 
-            po.dc.add(dc)
-            po.save()
-            messages.success(request, 'Delivery Challan has been added successfully.')
+        dcs = DeliveryChallan.objects.filter(po__po_number=po)
+        total = 0
+        for x in dcs:
+            total += x.total_amount
+
+        dc_po_remaining_amount = po.po_amount - total
+        dc_grn_amount = po.po_amount - dc_po_remaining_amount
+
+        po.grn_amount_by_dc = dc_grn_amount
+        po.po_remaining_amount_by_dc = dc_po_remaining_amount
+       
+
+        po.dc.add(dc)
+        po.save()
+        messages.success(request, 'Delivery Challan has been added successfully.')
             
-            return redirect('dc_form')
-        except ValidationError as e:
-            messages.error(request, "File Type not Supported.")
-            return redirect('dc_form')
+        return redirect('dc_form')
+       
     
     context['items'] = pos
     
@@ -392,8 +427,9 @@ def edit_dc(request, dc_number):
         description = request.POST['description']
         dc_date = request.POST['dc_date']
         department = request.POST['department']
-        total_amount = request.POST['total_amount']
+        total_amount = int(request.POST['total_amount'])
         is_grn = request.POST.get('is_grn') == 'on'
+        grn_id = request.POST['grn_id']
         po_number = request.POST['po']
       
         if po_number:
@@ -402,30 +438,46 @@ def edit_dc(request, dc_number):
 
         if not image:
             image = dc.image
-        try:
-            validate_file_extension(image)
         
-            dc.dc_number = dc_number
-            dc.description = description
-            dc.dc_date = dc_date
-            dc.image = image
-            dc.is_grn = is_grn
-            dc.department = department
-            dc.total_amount = total_amount
-            dc.save()
-            
-            messages.success(request, 'Delivery Challan has changed successfully.')
-            return redirect('dc_detail_page', dc.dc_number)
+        if dc.total_amount != total_amount:
+            po.grn_amount_by_dc -= dc.total_amount
+            po.grn_amount_by_dc += total_amount
 
-        except ValidationError as e:
-            messages.error(request, "File type not Supported")
-            return redirect('dc_form')
+            po.po_remaining_amount_by_dc += dc.total_amount 
+            po.po_remaining_amount_by_dc -= total_amount 
+
+            po.save()
+      
+        dc.dc_number = dc_number
+        dc.description = description
+        dc.dc_date = dc_date
+        dc.image = image
+        dc.is_grn = is_grn
+        dc.grn_id = grn_id
+        dc.department = department
+        dc.total_amount = total_amount
+        dc.save()
+            
+        messages.success(request, 'Delivery Challan has changed successfully.')
+        return redirect('dc_detail_page', dc.dc_number)
+
+      
 
 
     return render(request, 'dc/dc_form.html', context)
 
 def delete_dc(request, dc_number):
     dc = get_object_or_404(DeliveryChallan, dc_number=dc_number)
+
+    po = dc.po
+    
+    po.invoices.remove(dc)
+    po.po_remaining_amount_by_dc += po.total_amount
+    po.grn_amount_by_dc = po.po_amount - po.po_remaining_amount_by_dc
+   
+    po.save()
+
+
     dc.delete()
 
     messages.success(request, "Delivery Challan has been deleted Successfully.")
@@ -435,53 +487,52 @@ def delete_dc(request, dc_number):
 
 
 
-# ==============================================================
-#                          Invoices
-# ==============================================================
+
 
 def invoice_list(request):
     context = {}
+    
     if request.method == 'GET':
         search_query = request.GET.get('search_query')
         search_method = request.GET.get('method')
-        results = {}
+        
         if search_query and search_method:
-            context['search_query']= search_query
-            context['method']= search_method
+            context['search_query'] = search_query
+            context['method'] = search_method
+
             if search_method == 'by_inv':
-                # Filter by PO Number
+                # Filter by Invoice Number
                 results = Invoice.objects.filter(invoice_number__exact=search_query).order_by('-id')
-                context['results'] = results
             elif search_method == 'by_dept':
                 # Filter by Department
                 results = Invoice.objects.filter(department__iexact=search_query).order_by('-id')
-                context['results'] = results
             elif search_method == 'by_desc':
                 # Filter by Description
                 results = Invoice.objects.filter(description__icontains=search_query).order_by('-id')
-                context['results'] = results
             elif search_method == 'by_po':
-            # Filter by Description
+                # Filter by PO Number
                 results = Invoice.objects.filter(po__po_number__exact=search_query).order_by('-id')
-                context['results'] = results
-
-
-    list = Invoice.objects.all().order_by('-id')
-
-    received_inv_total = 0
-    pending_inv_total = 0
+            else:
+                results = Invoice.objects.none()  # Handle default case when search_method doesn't match
+            
+            context['results'] = results
     
-    for item in list:
-        if item.is_amount_received:
-            received_inv_total += item.total_amount
-        else:
-            pending_inv_total += item.total_amount
+    # Fetch all Invoice objects
+    items = Invoice.objects.all().order_by('-id')
 
-    context['items'] = list
-    context['pending_inv_total'] = pending_inv_total
-    context['received_inv_total'] = received_inv_total
-    
+    # Calculate totals
+    received_inv_total = sum(item.total_amount for item in items if item.is_amount_received)
+    pending_inv_total = sum(item.total_amount for item in items if not item.is_amount_received)
+
+    # Update context with items and totals
+    context.update({
+        'items': items,
+        'pending_inv_total': pending_inv_total,
+        'received_inv_total': received_inv_total,
+    })
+
     return render(request, 'inv/invoices_page.html', context)
+
 
 def invoice_detail_page(request, invoice_number):
     item = get_object_or_404(Invoice, invoice_number=invoice_number)
@@ -502,45 +553,47 @@ def invoice_form_page(request):
         department = request.POST['department']
         total_amount = request.POST['total_amount']
         is_sent = request.POST.get('is_sent') == 'on'
+        grn_id = request.POST['grn_id']
         is_amount_received = request.POST.get('is_amount_received') == 'on'
         po_number = request.POST['po']
         
         po = get_object_or_404(PurchaseOrder, po_number=po_number)
-
-        try:
-            validate_file_extension(image)
         
-            invoice = Invoice(
-                    invoice_number=invoice_number,
-                    image=image,
-                    description=description,
-                    invoice_date=invoice_date,
-                    sent_date=sent_date,
-                    department=department,
-                    total_amount=total_amount,
-                    is_sent=is_sent,
-                    is_amount_received=is_amount_received,
-                    po=po,
-            )
+      
+        invoice = Invoice(
+            invoice_number=invoice_number,
+            image=image,
+            description=description,
+            invoice_date=invoice_date,
+            sent_date=sent_date,
+            department=department,
+            total_amount=total_amount,
+            is_sent=is_sent,
+            is_amount_received=is_amount_received,
+            po=po,
+            grn_id=grn_id,
+        )
 
-            invoice.save()   
+        invoice.save()   
 
-            invoices = Invoice.objects.filter(po__po_number=po)
-            total = 0
-            for x in invoices:
-                total += x.total_amount
+        delivery_challan = DeliveryChallan.objects.filter(po__po_number=po, total_amount=total_amount, dc_number=invoice_number)
+
+        invoices = Invoice.objects.filter(po__po_number=po)
+        total = 0
+        for x in invoices:
+            total += x.total_amount
 
             
-            po.invoices.add(invoice)
-            po_remaining_amount = po.po_amount - total
-            grn_amount = po.po_amount - po_remaining_amount
-            po.po_remaining_amount = po_remaining_amount
-            po.grn_amount = grn_amount
-            po.save()
-            messages.success(request, 'Invoice has been added successfully.')
+        po.invoices.add(invoice)
+        invoice.dc.add(delivery_challan)
+        po_remaining_amount = po.po_amount - total
+        grn_amount = po.po_amount - po_remaining_amount
+        po.po_remaining_amount = po_remaining_amount
+        po.grn_amount = grn_amount
+        po.save()
+        messages.success(request, 'Invoice has been added successfully.')
         
-        except ValidationError as e:
-            messages.error(request, "File type not Supported")
+       
         
         return redirect('invoice_form')
     
@@ -563,10 +616,11 @@ def edit_invoice(request, invoice_number):
         invoice_date = request.POST['invoice_date']
         sent_date = request.POST['sent_date']
         department = request.POST['department']
-        total_amount = request.POST['total_amount']
+        total_amount = int(request.POST['total_amount'])
         is_sent = request.POST.get('is_sent') == 'on'
         is_amount_received = request.POST.get('is_amount_received') == 'on'
         po_number = request.POST['po']
+        grn_id = request.POST['grn_id']
         
         if po_number:
             po = PurchaseOrder.objects.get(po_number=po_number)
@@ -574,26 +628,31 @@ def edit_invoice(request, invoice_number):
         if not image:
             image = invoice.image
         
-        try:
-            validate_file_extension(image)
-       
-            invoice.invoice_number = invoice_number
-            invoice.description = description
-            invoice.invoice_date = invoice_date
-            invoice.sent_date = sent_date
-            invoice.image = image
-            invoice.is_sent = is_sent
-            invoice.is_amount_received = is_amount_received
-            invoice.department = department
-            invoice.total_amount = total_amount
-            invoice.save()
-            
-            messages.success(request, 'Invoice has changed successfully.')
-            return redirect('invoice_detail_page', invoice.invoice_number)
+        if invoice.total_amount != total_amount:
+            po.grn_amount -= invoice.total_amount
+            po.grn_amount += total_amount
+
+            po.po_remaining_amount += invoice.total_amount 
+            po.po_remaining_amount -= total_amount 
         
-        except ValidationError as e:
-            messages.error(request, "File type not Supported")
-            return redirect('invoice_form')
+            po.save()
+
+        invoice.invoice_number = invoice_number
+        invoice.description = description
+        invoice.invoice_date = invoice_date
+        invoice.sent_date = sent_date
+        invoice.image = image
+        invoice.is_sent = is_sent
+        invoice.grn_id = grn_id
+        invoice.is_amount_received = is_amount_received
+        invoice.department = department
+        invoice.total_amount = total_amount
+        invoice.save()
+            
+        messages.success(request, 'Invoice has changed successfully.')
+        return redirect('invoice_detail_page', invoice.invoice_number)
+        
+        
     
     return render(request, 'inv/invoice_form.html', context)
 
@@ -631,7 +690,7 @@ def grn_dc(request, po_number):
         image = request.FILES.get('image')
         description = request.POST['description']
         dc_date = request.POST['dc_date']
-        
+        grn_id = request.POST['grn_id']
         total_amount = request.POST['total_amount']
         is_grn = request.POST.get('is_grn') == 'on'
  
@@ -646,9 +705,21 @@ def grn_dc(request, po_number):
                     total_amount=total_amount,
                     is_grn=is_grn,
                     po=po,
+                    grn_id=grn_id,
             )
 
             dc.save()   
+
+            dcs = DeliveryChallan.objects.filter(po__po_number=po)
+            total = 0
+            for x in dcs:
+                total += x.total_amount
+
+            dc_po_remaining_amount = po.po_amount - total
+            dc_grn_amount = po.po_amount - dc_po_remaining_amount
+
+            po.grn_amount_by_dc = dc_grn_amount
+            po.po_remaining_amount_by_dc = dc_po_remaining_amount
 
             po.dc.add(dc)
             po.save()
@@ -678,6 +749,7 @@ def grn_inv(request, dc_number):
         total_amount = request.POST['total_amount']
         is_sent = request.POST.get('is_sent') == 'on'
         is_amount_received = request.POST.get('is_amount_received') == 'on'
+        grn_id = request.POST['grn_id']
      
 
     
@@ -692,6 +764,7 @@ def grn_inv(request, dc_number):
             is_sent=is_sent,
             is_amount_received=is_amount_received,
             po=dc.po,
+            grn_id=grn_id,
         )
 
         invoice.save()   
@@ -711,6 +784,8 @@ def grn_inv(request, dc_number):
         dc.po.save()
 
         dc.po.invoices.add(invoice)
+        invoice.dc.add(dc)
+        invoice.save()
         dc.po.save()
         messages.success(request, f'Invoice has been added successfully for PO#{ dc.po.po_number }.')
             
@@ -727,6 +802,8 @@ def grn_inv(request, dc_number):
 # Departments View
 
 def department_list(request):
+
+
     context = {}
     if request.method == 'GET':
         search_query = request.GET.get('search_query')
@@ -749,3 +826,55 @@ def department_list(request):
     
 
     return render(request, 'dept/all_departments_list.html', context)
+
+
+def export_invoices_to_excel(request):
+    # Fetch all Invoice objects
+    invoices = Invoice.objects.all().order_by('-id')
+
+    # Create a response object
+    response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+    response['Content-Disposition'] = 'attachment; filename="invoices.xlsx"'
+
+    # Create a new Workbook and select the active worksheet
+    wb = Workbook()
+    ws = wb.active
+    ws.title = "Invoices"
+
+    # Define headers
+    headers = [
+        'Invoice Number', 'Image', 'Description', 'Invoice Date', 
+        'GRN ID', 'Sent Date', 'Department', 'Total Amount', 
+        'Is Sent', 'PO', 'Is Amount Received'
+    ]
+
+    # Apply styles
+    header_font = Font(bold=True, color="FFFFFF")  # White bold font
+    header_fill = PatternFill(start_color='000080', end_color='000080', fill_type='solid')  # Navy Blue background
+    cell_border = Border(left=Side(style='thin'), right=Side(style='thin'), top=Side(style='thin'), bottom=Side(style='thin'))
+
+    # Write headers with styles to the first row
+    for col_num, header in enumerate(headers, start=1):
+        cell = ws.cell(row=1, column=col_num, value=header)
+        cell.font = header_font
+        cell.fill = header_fill
+        cell.border = cell_border
+
+    # Write data rows with styles
+    for row_num, invoice in enumerate(invoices, start=2):
+        ws.cell(row=row_num, column=1, value=invoice.invoice_number).border = cell_border
+        ws.cell(row=row_num, column=2, value=invoice.image.url if invoice.image else '').border = cell_border
+        ws.cell(row=row_num, column=3, value=invoice.description).border = cell_border
+        ws.cell(row=row_num, column=4, value=invoice.invoice_date.strftime('%Y-%m-%d')).border = cell_border
+        ws.cell(row=row_num, column=5, value=invoice.grn_id).border = cell_border
+        ws.cell(row=row_num, column=6, value=invoice.sent_date.strftime('%Y-%m-%d') if invoice.sent_date else '').border = cell_border
+        ws.cell(row=row_num, column=7, value=invoice.department).border = cell_border
+        ws.cell(row=row_num, column=8, value=f'Rs. {invoice.total_amount}').border = cell_border
+        ws.cell(row=row_num, column=9, value='Yes' if invoice.is_sent else 'No').border = cell_border
+        ws.cell(row=row_num, column=10, value=invoice.po.po_number if invoice.po else '').border = cell_border
+        ws.cell(row=row_num, column=11, value='Yes' if invoice.is_amount_received else 'No').border = cell_border
+
+    # Save the workbook
+    wb.save(response)
+
+    return response
