@@ -826,7 +826,7 @@ def department_list(request):
     
 
     return render(request, 'dept/all_departments_list.html', context)
-<<<<<<< HEAD
+
 
 
 def export_invoices_to_excel(request):
@@ -879,5 +879,4 @@ def export_invoices_to_excel(request):
     wb.save(response)
 
     return response
-=======
->>>>>>> 617cc514d5e4117db8ae2d3e970fba98c694ca8e
+
