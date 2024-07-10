@@ -41,6 +41,8 @@ INSTALLED_APPS = [
     'django.contrib.humanize',
     'main',
     "whitenoise.runserver_nostatic",
+    'cloudinary',
+    'cloudinary_storage',
 ]
 
 MIDDLEWARE = [
@@ -131,8 +133,7 @@ STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'static'),
 ]
-MEDIA_URL = '/media/'
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
 
@@ -141,3 +142,15 @@ STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 
 
 CSRF_TRUSTED_ORIGINS=['https://*.up.railway.app',]
+
+
+
+CLOUDINARY_STORAGE = {
+    'CLOUD_NAME': 'dbqt8bzbo',
+    'API_KEY': '988765576771175',
+    'API_SECRET': 'bKZHcSt14RUkZHDfLW_GhEzqJ18'
+}
+
+DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
+
+MEDIA_URL = '/media/'
