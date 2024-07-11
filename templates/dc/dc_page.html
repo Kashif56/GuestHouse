@@ -259,6 +259,7 @@
               <td>{{ item.dc_date }}</td>
               <td>Rs. {{ item.total_amount|intcomma }}</td>
               <td><a style="color: green;" href="{% url 'edit_dc' item.dc_number  %}">Edit</a>
+                <a style="color: gray; margin-left: 20px;" href="{% url 'link_dc_to_inv' item.dc_number  %}">Link</a>
                 <a style="color: red;margin-left: 20px;" href="{% url 'delete_dc' item.dc_number %}">Delete</a>
             </td>
             </tr>
@@ -300,6 +301,7 @@
               <td>{{ item.dc_date }}</td>
               <td>Rs. {{ item.total_amount|intcomma }}</td>
               <td><a style="color: green;" href="{% url 'edit_dc' item.dc_number  %}">Edit</a>
+                <a style="color: gray; margin-left: 20px;" href="{% url 'link_dc_to_inv' item.dc_number  %}">Link</a>
                 <a style="color: red;margin-left: 20px;" href="{% url 'delete_dc' item.dc_number %}">Delete</a>
             </td>
             </tr>
@@ -356,6 +358,7 @@
               <td>{{ item.total_amount|intcomma }}</td>
 
               <td><a style="color: green;" href="{% url 'edit_dc' item.dc_number  %}">Edit</a>
+                <a style="color: gray; margin-left: 20px;" href="{% url 'link_dc_to_inv' item.dc_number  %}">Link</a>
                 <a style="color: red;margin-left: 20px;" href="{% url 'delete_dc' item.dc_number %}">Delete</a>
             </td>
             </tr>

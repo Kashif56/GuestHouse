@@ -26,7 +26,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 DEBUG = True
 
 SECRET_KEY = 'django-insecure-70sfwr7f4#%)t^z7o(x=2*+r+00zmzck3k*ub(z!o=t3zh$lao'
-ALLOWED_HOSTS = ['localhost', '127.0.0.1' ,'https://guesthouse.up.railway.app', 'guesthouse.up.railway.app', 'http://guesthouse.up.railway.app', 'https://guesthouse.up.railway.app/','http://guesthouse.up.railway.app/']
+ALLOWED_HOSTS = ['localhost', '127.0.0.1' ,'https://guesthouse.up.railway.app', 'guesthouse.up.railway.app', 'http://guesthouse.up.railway.app', 'https://guesthouse.up.railway.app/','http://guesthouse.up.railway.app/', '127.0.0.1/admin', 'guesthouse.up.railway.app/admin']
 
 
 # Application definition
@@ -141,7 +141,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 
 
-CSRF_TRUSTED_ORIGINS=['https://*.up.railway.app',]
+CSRF_TRUSTED_ORIGINS=['https://*.up.railway.app','https://*.up.railway.app/admin']
 
 
 

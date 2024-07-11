@@ -37,4 +37,5 @@ urlpatterns = [
     path('departments/', views.department_list, name='dept_list'),
    
     path('export_invoices_to_excel/', views.export_invoices_to_excel, name='export_inv_to_excel'),
+    path('link_dc_to_invoice/<dc_number>/', views.link_dc_to_invoice, name="link_dc_to_inv"),
 ]

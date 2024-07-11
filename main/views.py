@@ -470,9 +470,8 @@ def delete_dc(request, dc_number):
     dc = get_object_or_404(DeliveryChallan, dc_number=dc_number)
 
     po = dc.po
-    
-    po.invoices.remove(dc)
-    po.po_remaining_amount_by_dc += po.total_amount
+   
+    po.po_remaining_amount_by_dc += po.po_amount
     po.grn_amount_by_dc = po.po_amount - po.po_remaining_amount_by_dc
    
     po.save()
@@ -880,3 +879,22 @@ def export_invoices_to_excel(request):
 
     return response
 
+
+def link_dc_to_invoice(request, dc_number):
+    context = {}
+    dc = get_object_or_404(DeliveryChallan, dc_number=dc_number)
+    context['dc'] = dc
+    invoices_qs = Invoice.objects.all()
+    context['items'] = invoices_qs
+    if request.method == 'POST':
+        inv_number = request.POST.get('invoice')
+
+        invoice = get_object_or_404(Invoice, invoice_number=inv_number)
+    
+        invoice.dc.add(dc)
+        invoice.save()
+
+        messages.success(request, "Delivery Challan is Linked to Invoice Successfully.")
+        return redirect('dc_list')
+    
+    return render(request, 'dc/link_dc.html', context)

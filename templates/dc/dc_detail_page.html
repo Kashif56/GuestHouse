@@ -134,6 +134,8 @@ table tbody tr:hover {
         <h2>Delivery Challan Detail View #{{ item.dc_number }} 
           <a style="color: rgb(255, 255, 255); font-size:14px; margin-left: 20px; background-color: #009735; padding: 8px 20px; border-radius: 5px;" href="{% url 'edit_dc' item.dc_number  %}">Edit</a>
           <a style="color: rgb(255, 255, 255); font-size:14px; margin-left: 20px; background-color: #ff0000; padding: 8px 20px; border-radius: 5px;" href="{% url 'delete_dc' item.dc_number  %}?next={{request.path}}">Delete</a>
+
+          <a style="color: rgb(255, 255, 255); font-size:14px; margin-left: 20px; background-color: gray; padding: 8px 20px; border-radius: 5px;" href="{% url 'link_dc_to_inv' item.dc_number  %}">Link DC to Invoice</a>
         </h2>
         <table>
           <thead>
