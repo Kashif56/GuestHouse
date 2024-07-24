@@ -224,29 +224,25 @@ def quote_form_page(request):
         if po:
             po = PurchaseOrder.objects.get(po_number=po)
         
-        try:
-            validate_file_extension(quote_img)
+      
         
-            quote = Quote(
-                    quote_number=quote_number,
-                    quote_img = quote_img,
-                    description=description,
-                    quote_date=quote_date,
-                    event_date=event_date,
-                    department=department,
-                    total_amount=total_amount,
-                    is_po_approved=is_po_created,
-                    po=po,
-            )
+        quote = Quote(
+            quote_number=quote_number,
+            quote_img = quote_img,
+            description=description,
+            quote_date=quote_date,
+            event_date=event_date,
+            department=department,
+            total_amount=total_amount,
+            is_po_approved=is_po_created,
+            po=po,
+        )
 
-            quote.save()   
-            messages.success(request, 'Quotation has been added successfully.')
+        quote.save()   
+        messages.success(request, 'Quotation has been added successfully.')
             
-            return redirect('quote_form')
-        
-        except ValidationError as e:
-            messages.error(request, 'File Type not Supported')
-            return redirect('quote_form')
+        return redirect('quote_form')
+      
     
     context['items'] = pos
     return render(request, 'quote/quote_form.html', context)
@@ -591,9 +587,6 @@ def invoice_form_page(request):
         po.grn_amount = grn_amount
         po.save()
         messages.success(request, 'Invoice has been added successfully.')
-        
-       
-        
         return redirect('invoice_form')
     
     context['items'] = pos
